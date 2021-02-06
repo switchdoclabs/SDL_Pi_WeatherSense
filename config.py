@@ -16,4 +16,6 @@ import uuid
 enable_MySQL_Logging = True
 MySQL_Password = "password"
 
+# 0 is English, 1 is metric
+English_Metric= 0
 

@@ -17,6 +17,7 @@ import state
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+#cmd = [ '/usr/local/bin/rtl_433', '-q', '-F', 'json', '-R', '147']
 cmd = [ '/usr/local/bin/rtl_433', '-q', '-F', 'json', '-R', '146', '-R','147', '-R', '148','-R', '150', '-R', '151']
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -46,14 +47,175 @@ def randomadd(value, spread):
 
 
 # process functions
+import gpiozero
 
-def processF020(sLine):
 
-    return
+def processFT020T(sLine, lastFT020TTimeStamp):
 
+    
+    if (config.SWDEBUG):
+        sys.stdout.write("processing FT020T Data\n")
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
+
+    var = json.loads(sLine)
+
+    if (lastFT020TTimeStamp == var["time"]):
+        # duplicate
+        if(config.SWDEBUG):
+            sys.stdout.write("duplicate found\n")
+
+        return ""
+    lastFT0202TTimeStamp = var["time"]
+
+    # outside temperature and Humidity
+
+    mainID = var["id"] 
+    lastMainReading = nowStr()
+
+
+
+    wTemp = var["temperature"]
+
+    ucHumi = var["humidity"]
+
+
+    wTemp = (wTemp - 400)/10.0
+    # deal with error condtions
+    if (wTemp > 140.0):
+        # error condition from sensor
+        if (config.SWDEBUG):
+            sys.stdout.write("error--->>> Temperature reading from FT020T\n")
+            sys.stdout.write('This is the raw temperature: ' + str(wTemp) + '\n')
+        # put in previous temperature 
+        wtemp = OudoorTemperature 
+    #print("wTemp=%s %s", (str(wTemp),nowStr() ));
+    if (ucHumi > 100.0):
+        # bad humidity
+        # put in previous humidity
+        ucHumi  = OutdoorHumidity
+     
+    OutdoorTemperature = round(((wTemp - 32.0)/(9.0/5.0)),2)
+    OutdoorHumidity =  ucHumi 
+
+    
+        
+    WindSpeed =  round(var["avewindspeed"]/10.0, 1)
+    WindGust  = round(var["gustwindspeed"]/10.0, 1)
+    WindDirection  = var["winddirection"]
+    
+
+
+    TotalRain  = round(var["cumulativerain"]/10.0,1)
+    Rain60Minutes = 0.0
+
+    wLight = var["light"]
+    if (wLight >= 0x1fffa):
+        wLight = wLight | 0x7fff0000
+
+    wUVI =var["uv"]
+    if (wUVI >= 0xfa):
+        wUVI = wUVI | 0x7f00
+
+    SunlightVisible =  wLight 
+    SunlightUVIndex  = round(wUVI/10.0, 1 )
+
+    if (var['batterylow'] == 0):
+        BatteryOK = "OK"
+    else:
+        BatteryOK = "LOW"
+
+    # SkyWeather2 Compatiblity
+    AQI = 0
+    Hour24_AQI = 0
+    IndoorTemperature = 0
+    IndoorHumidity = 0
+    BarometricPressure = 0.0
+    BarometricPressureSeaLevel = 0.0
+    BarometricTemperature = 0.0
+
+    if (config.enable_MySQL_Logging == True):	
+	    # open mysql database
+	    # write log
+	    # commit
+	    # close
+        try:
+                cpu = gpiozero.CPUTemperature()
+                CPUTemperature = cpu.temperature
+ 
+                print("trying database")
+                con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
+                cur = con.cursor()
+
+                fields = "OutdoorTemperature, OutdoorHumidity, IndoorTemperature, IndoorHumidity, TotalRain, SunlightVisible, SunlightUVIndex, WindSpeed, WindGust, WindDirection,BarometricPressure, BarometricPressureSeaLevel, BarometricTemperature, AQI, AQI24Average, BatteryOK, CPUTemperature"
+                values = "%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%6.2f,%6.2f,%6.2f, \'%s\',%6.2f" % (OutdoorTemperature, OutdoorHumidity, IndoorTemperature, IndoorHumidity, TotalRain, SunlightVisible, SunlightUVIndex, WindSpeed, WindGust, WindDirection,BarometricPressure, BarometricPressureSeaLevel, BarometricTemperature, float(AQI), Hour24_AQI, BatteryOK, CPUTemperature)
+                query = "INSERT INTO WeatherData (%s) VALUES(%s )" % (fields, values)
+                #print("query=", query)
+                cur.execute(query)
+                con.commit()
+        except mdb.Error as e:
+                traceback.print_exc()
+                print("Error %d: %s" % (e.args[0],e.args[1]))
+                con.rollback()
+                #sys.exit(1)
+
+        finally:
+                cur.close()
+                con.close()
+
+                del cur
+                del con
+    return lastFT0202TTimeStamp 
 
 # processes Inside Temperature and Humidity
 def processF016TH(sLine):
+    if (config.SWDEBUG):
+        sys.stdout.write('Processing F016TH data'+'\n')
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
+    
+    var = json.loads(sLine)
+
+    lastIndoorReading = nowStr()
+
+    IndoorTemperature = round(((var["temperature_F"] - 32.0)/(9.0/5.0)),2)
+
+
+    print (var)
+    if (config.enable_MySQL_Logging == True):	
+	    # open mysql database
+	    # write log
+	    # commit
+	    # close
+        try:
+
+                print("trying database")
+                con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
+                cur = con.cursor()
+
+
+                fields = "DeviceID, ChannelID, Temperature, Humidity, BatteryOK, TimeRead"
+
+                values = "%d, %d, %6.2f, %6.2f, \"%s\", \"%s\"" % (var["device"], var["channel"], IndoorTemperature, var["humidity"], var["battery"], var["time"])
+                query = "INSERT INTO IndoorTHSensors (%s) VALUES(%s )" % (fields, values)
+                #print("query=", query)
+                cur.execute(query)
+                con.commit()
+        except mdb.Error as e:
+                traceback.print_exc()
+                print("Error %d: %s" % (e.args[0],e.args[1]))
+                con.rollback()
+                #sys.exit(1)
+
+        finally:
+                cur.close()
+                con.close()
+
+                del cur
+                del con
+    return 
+
+
+# processes Generic Packets 
+def processWeatherSenseGeneric(sLine):
     return
 
 def processWeatherSenseTB(sLine):
@@ -83,7 +245,7 @@ def processWeatherSenseTB(sLine):
                 values = "%d, %d, %d, %d, %d, %d, %d, %d,%d, %d,%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (state["deviceid"], state["protocolversion"], state["softwareversion"], state["weathersenseprotocol"],state['irqsource'],state['previousinterruptresult'],state['lightninglastdistance'],state['sparebyte'],state['lightningcount'],state['interruptcount'],
                 state["batteryvoltage"], state["batterycurrent"], state["loadvoltage"], state["loadcurrent"], state["solarpanelvoltage"], state["solarpanelcurrent"], state["auxa"],batteryCharge, state["messageid"], batteryPower, loadPower, solarPower, myTEST, myTESTDescription )
                 query = "INSERT INTO TB433MHZ (%s) VALUES(%s )" % (fields, values)
-                print("query=", query)
+                #print("query=", query)
                 cur.execute(query)
                 con.commit()
         except mdb.Error as e:
@@ -124,10 +286,30 @@ def processWeatherSenseAQI(sLine):
                 loadPower = 0.0
                 solarPower = 0.0
                 batteryCharge = 0.0
+                # calculate AQI 24 Hour
+                timeDelta = datetime.timedelta(days=1)
+                now = datetime.datetime.now()
+                before = now - timeDelta
+                before = before.strftime('%Y-%m-%d %H:%M:%S')
+                query = "SELECT AQI, TimeStamp FROM AQI433MHZ WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (before)
+
+                cur.execute(query)
+                myAQIRecords = cur.fetchall()
+                myAQITotal = 0.0
+                if (len(myAQIRecords) > 0):
+                    for i in range(0, len(myAQIRecords)):
+
+                        myAQITotal = myAQITotal + myAQIRecords[i][0]
+                    
+                    AQI24Hour = (myAQITotal+float(state['AQI']))/(len(myAQIRecords)+1)
+                else:
+                    AQI24Hour  = 0.0
                 
 
-                fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, PM1_0S, PM2_5S, PM10S, PM1_0A, PM2_5A, PM10A, AQI, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
-                values = "%d, %d, %d, %d, %d, %d, %d, %d, %d,%d, %d,%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (state["deviceid"], state["protocolversion"], state["softwareversion"], state["weathersenseprotocol"],state['PM1.0S'],state['PM2.5S'],state['PM10S'],state['PM1.0A'],state['PM2.5A'],state['PM10S'],state['AQI'], 
+                
+
+                fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, PM1_0S, PM2_5S, PM10S, PM1_0A, PM2_5A, PM10A, AQI, AQI24Hour, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
+                values = "%d, %d, %d, %d, %d, %d, %d, %d, %d,%d, %d, %6.2f,%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (state["deviceid"], state["protocolversion"], state["softwareversion"], state["weathersenseprotocol"],state['PM1.0S'],state['PM2.5S'],state['PM10S'],state['PM1.0A'],state['PM2.5A'],state['PM10S'],state['AQI'], AQI24Hour,
                 state["batteryvoltage"], state["batterycurrent"], state["loadvoltage"], state["loadcurrent"], state["solarpanelvoltage"], state["solarpanelcurrent"], state["auxa"],batteryCharge, state["messageid"], batteryPower, loadPower, solarPower, myTEST, myTESTDescription )
                 query = "INSERT INTO AQI433MHZ (%s) VALUES(%s )" % (fields, values)
                 print("query=", query)
@@ -177,7 +359,7 @@ def processSolarMAX(sLine):
                 fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, internaltemperature,internalhumidity, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
                 values = "%d, %d, %d, %d, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (state["deviceid"], state["protocolversion"], state["softwareversion"], state["weathersenseprotocol"], state["batteryvoltage"], state["batterycurrent"], state["loadvoltage"], state["loadcurrent"], state["solarpanelvoltage"], state["solarpanelcurrent"], state["auxa"],state["internaltemperature"], state["internalhumidity"], batteryCharge, state["messageid"], batteryPower, loadPower, solarPower, myTEST, myTESTDescription )
                 query = "INSERT INTO SolarMax433MHZ (%s) VALUES(%s )" % (fields, values)
-                print("query=", query)
+                #print("query=", query)
                 cur.execute(query)
                 con.commit()
         except mdb.Error as e:
@@ -220,6 +402,8 @@ def readSensors():
     pulse = 0
     print("starting 433MHz scanning")
     print("######")
+    # last timestamp for FT020T to remove duplicates
+    lastFT020TTimeStamp = ""
 
     while True:
         #   Other processing can occur here as needed...
@@ -242,7 +426,7 @@ def readSensors():
                 if (( sLine.find('F007TH') != -1) or ( sLine.find('F016TH') != -1)): 
                     processF016TH(sLine)
                 if (( sLine.find('FT0300') != -1) or ( sLine.find('FT020T') != -1)): 
-                    processF020(sLine)
+                    lastFT020TTimeStamp = processFT020T(sLine,lastFT020TTimeStamp) 
 
             if (sLine.find('SolarMAX') != -1):
                 processSolarMAX(sLine)
@@ -252,6 +436,9 @@ def readSensors():
 
             if (sLine.find('TB') != -1):
                 processWeatherSenseTB(sLine)
+
+            if (sLine.find('Generic') != -1):
+                processWeatherSenseGeneric(sLine)
 
         sys.stdout.flush()
 
