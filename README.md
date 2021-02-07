@@ -9,6 +9,10 @@ Supports:<BR>
 - WeatherSense Air Quality Index<BR>
 - SolarMAX Solar Panel System<BR>
 
+Supporting in the future:<BR>
+- WeatherSense Generic <BR>
+- WeatherSense Camera <BR>
+
 
 Version 1.0 February 2021
 

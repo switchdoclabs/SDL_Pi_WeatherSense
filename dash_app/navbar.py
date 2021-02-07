@@ -20,7 +20,6 @@ def Navbar():
             dbc.NavItem(dbc.NavLink("Indoor T/H", href="/indoorth_page")),
             dbc.NavItem(dbc.NavLink("SolarMAX", href="/solarmax_page")),
             dbc.NavItem(dbc.NavLink("Generic", href="/generic_page")),
-            dbc.NavItem(dbc.NavLink("Status Page", href="/status_page")),
                 ],
                 id='navbar',
                 brand="WeatherSense Logging",

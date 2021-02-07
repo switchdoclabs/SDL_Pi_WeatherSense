@@ -27,7 +27,7 @@ import solarmax_page
 import weather_page
 import indoorth
 import aqi_page
-#import lightning_page
+import lightning_page
 #import generic_page
 
 # state of previous page
@@ -60,7 +60,12 @@ app.layout =  html.Div(
             ) ,
        dcc.Interval(
             id='minute-interval-component',
-            interval=30*1000, # in milliseconds
+            interval=60*1000, # in milliseconds
+            n_intervals=0
+            ) ,
+       dcc.Interval(
+            id='minute15-interval-component',
+            interval=15*60*1000, # in milliseconds
             n_intervals=0
             ) ,
        
@@ -124,13 +129,13 @@ def display_page(pathname):
     if pathname == '/indoorth_page':
         print("before IndoorTHPage")
         myLayout = indoorth.IndoorTHPage()
-        print("myLayout=")
+        #print("myLayout=")
         myLayout2 = ""
     if pathname == '/aqi_page':
         myLayout = aqi_page.AQIPage()
         myLayout2 = ""
     if pathname == '/lightning_page':
-        #myLayout = log_page.LogPage()
+        myLayout = lightning_page.LightningPage()
         myLayout2 = ""
     if pathname == '/solarmax_page':
         myLayout = solarmax_page.SolarMAXPage()
@@ -142,7 +147,7 @@ def display_page(pathname):
         #myLayout = log_page.LogPage()
         myLayout2 = ""
 
-    print("myLayout= ",myLayout)
+    #print("myLayout= ",myLayout)
     #print("myLayout2= ",myLayout2)
     #print("page-content= ",app.layout)
     now = datetime.datetime.now()
@@ -154,6 +159,71 @@ def display_page(pathname):
 ############
 # callbacks
 ############
+# lightning_page callbacks
+
+
+@app.callback(
+	      [
+	      Output({'type' : 'Lightninggraph', 'index' : MATCH}, 'figure' ),
+              ],
+              [Input('minute-interval-component','n_intervals'),
+              Input({'type' : 'Lightninggraph', 'index' : MATCH}, 'id' )],
+              [State({'type' : 'Lightninggraph', 'index' : MATCH}, 'value'  )]
+              )
+
+def update_metrics(n_intervals, id, value):
+    print("n_intervals=", n_intervals)
+    myIndex = id['index']
+    # build figures
+    if (myIndex == '1'):
+        print("GraphLightning figure")
+        figure = lightning_page.build_graphLightning_figure()
+    if (myIndex == '2'):
+        print("GraphLightning Solar Currents")
+        figure = lightning_page.build_graph1_figure()
+    if (myIndex == '3'):
+        print("GraphLightning Solar Voltages")
+        figure = lightning_page.build_graph2_figure()
+
+
+
+    return [figure]
+
+
+
+@app.callback(
+	      [
+	      Output({'type' : 'LPdynamic', 'index' : MATCH}, 'children' ),
+              ],
+              [Input('main-interval-component','n_intervals'),
+              Input({'type' : 'LPdynamic', 'index' : MATCH}, 'id' )],
+              [State({'type' : 'LPdynamic', 'index' : MATCH}, 'value'  )]
+              )
+
+def updateLightningUpdate(n_intervals,id, value):
+
+
+    if (True):
+    #if ((n_intervals % (1*2)) == 0) or (n_intervals ==0): # 5 minutes -10 second timer
+
+    #if ((n_intervals % (5*6)) == 0) or (n_intervals ==0): # 5 minutes -10 second timer
+        print("--->>>updateLightningUpdate", datetime.datetime.now(), n_intervals)
+        print("updateLightningUpdate n_intervals =", n_intervals, id['index'])
+        if (id['index'] == "StringTime"):
+            #weather_page.CWJSON = weather_page.generateCurrentWeatherJSON()
+            #value = str(weather_page.CWJSON[id['index']]) +" "+ weather_page.CWJSON[id['index']+'Units']
+            now = datetime.datetime.now()
+            nowString =  now.strftime('%Y-%m-%d %H:%M:%S')
+            value = "Lightning Updated at:" + nowString
+            lightning_page.updateLightningLines()
+
+            return [value]
+        
+        value = lightning_page.LLJSON[id['index']] 
+    else:
+        raise PreventUpdate
+    return [value]
+
 
 # aqi_page callbacks
 
@@ -191,7 +261,7 @@ def update_metrics(n_intervals, id, value):
 	      [
 	      Output({'type' : 'SolarMAXgraph', 'index' : MATCH}, 'figure' ),
               ],
-              [Input('main-interval-component','n_intervals'),
+              [Input('minute15-interval-component','n_intervals'),
               Input({'type' : 'SolarMAXgraph', 'index' : MATCH}, 'id' )],
               [State({'type' : 'SolarMAXgraph', 'index' : MATCH}, 'value'  )]
               )

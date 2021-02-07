@@ -50,12 +50,13 @@ def randomadd(value, spread):
 import gpiozero
 
 
-def processFT020T(sLine, lastFT020TTimeStamp):
+def processFT020T(sLine, lastFT020TTimeStamp, ReadingCount):
 
     
     if (config.SWDEBUG):
         sys.stdout.write("processing FT020T Data\n")
         sys.stdout.write('This is the raw data: ' + sLine + '\n')
+        sys.stdout.write('ReadingCount=: ' + str(ReadingCount) + '\n')
 
     var = json.loads(sLine)
 
@@ -66,6 +67,16 @@ def processFT020T(sLine, lastFT020TTimeStamp):
 
         return ""
     lastFT0202TTimeStamp = var["time"]
+
+    # now check for adding record
+
+    if ((ReadingCount % config.RecordEveryXReadings) != 0 ):
+        # skip write to database 
+        if(config.SWDEBUG):
+            sys.stdout.write("skipping write to database \n")
+
+        return ""
+
 
     # outside temperature and Humidity
 
@@ -142,7 +153,6 @@ def processFT020T(sLine, lastFT020TTimeStamp):
                 cpu = gpiozero.CPUTemperature()
                 CPUTemperature = cpu.temperature
  
-                print("trying database")
                 con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
                 cur = con.cursor()
 
@@ -167,19 +177,31 @@ def processFT020T(sLine, lastFT020TTimeStamp):
     return lastFT0202TTimeStamp 
 
 # processes Inside Temperature and Humidity
-def processF016TH(sLine):
+def processF016TH(sLine, ReadingCountArray):
     if (config.SWDEBUG):
         sys.stdout.write('Processing F016TH data'+'\n')
         sys.stdout.write('This is the raw data: ' + sLine + '\n')
+        print(ReadingCountArray)
     
     var = json.loads(sLine)
 
     lastIndoorReading = nowStr()
 
+    # check for reading count per device
+
+    if ((ReadingCountArray[var["channel"]] % config.IndoorRecordEveryXReadings) != 0):
+
+        if (config.SWDEBUG):
+            print("skipping write to database for channel=", var["channel"])
+        # increment ReadingCountArray
+        ReadingCountArray[var["channel"]] = ReadingCountArray[var["channel"]] + 1 
+        return ""
+    # increment ReadingCountArray
+    ReadingCountArray[var["channel"]] = ReadingCountArray[var["channel"]] + 1 
+
     IndoorTemperature = round(((var["temperature_F"] - 32.0)/(9.0/5.0)),2)
 
 
-    print (var)
     if (config.enable_MySQL_Logging == True):	
 	    # open mysql database
 	    # write log
@@ -187,7 +209,6 @@ def processF016TH(sLine):
 	    # close
         try:
 
-                print("trying database")
                 con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
                 cur = con.cursor()
 
@@ -222,7 +243,6 @@ def processWeatherSenseTB(sLine):
     # weathersense protocol 16
     state = json.loads(sLine)
     myProtocol = state['weathersenseprotocol']
-    print("weathersenseprotocol=", myProtocol)
     
     if (config.enable_MySQL_Logging == True):	
 	    # open mysql database
@@ -232,7 +252,6 @@ def processWeatherSenseTB(sLine):
         try:
                 myTEST = ""
                 myTESTDescription = ""
-                print("trying database")
                 con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
                 cur = con.cursor()
                 batteryPower = 0.0
@@ -269,7 +288,6 @@ def processWeatherSenseAQI(sLine):
     # weathersense protocol 15
     state = json.loads(sLine)
     myProtocol = state['weathersenseprotocol']
-    print("weathersenseprotocol=", myProtocol)
     
     if (config.enable_MySQL_Logging == True):	
 	    # open mysql database
@@ -279,7 +297,6 @@ def processWeatherSenseAQI(sLine):
         try:
                 myTEST = ""
                 myTESTDescription = ""
-                print("trying database")
                 con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
                 cur = con.cursor()
                 batteryPower = 0.0
@@ -312,7 +329,6 @@ def processWeatherSenseAQI(sLine):
                 values = "%d, %d, %d, %d, %d, %d, %d, %d, %d,%d, %d, %6.2f,%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (state["deviceid"], state["protocolversion"], state["softwareversion"], state["weathersenseprotocol"],state['PM1.0S'],state['PM2.5S'],state['PM10S'],state['PM1.0A'],state['PM2.5A'],state['PM10S'],state['AQI'], AQI24Hour,
                 state["batteryvoltage"], state["batterycurrent"], state["loadvoltage"], state["loadcurrent"], state["solarpanelvoltage"], state["solarpanelcurrent"], state["auxa"],batteryCharge, state["messageid"], batteryPower, loadPower, solarPower, myTEST, myTESTDescription )
                 query = "INSERT INTO AQI433MHZ (%s) VALUES(%s )" % (fields, values)
-                print("query=", query)
                 cur.execute(query)
                 con.commit()
         except mdb.Error as e:
@@ -335,9 +351,7 @@ def processSolarMAX(sLine):
  state = json.loads(sLine)
 
  # only accept SolarMAX Protocols (8,10,11)
- print("state=", state)
  myProtocol = state['weathersenseprotocol']
- print("weathersenseprotocol=", myProtocol)
  if ((myProtocol == 8) or (myProtocol == 10) or (myProtocol == 11)):
    if (config.enable_MySQL_Logging == True):	
 	    # open mysql database
@@ -347,7 +361,6 @@ def processSolarMAX(sLine):
         try:
                 myTEST = ""
                 myTESTDescription = ""
-                print("trying database")
                 con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
                 cur = con.cursor()
                 batteryPower = 0.0
@@ -359,7 +372,6 @@ def processSolarMAX(sLine):
                 fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, internaltemperature,internalhumidity, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
                 values = "%d, %d, %d, %d, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (state["deviceid"], state["protocolversion"], state["softwareversion"], state["weathersenseprotocol"], state["batteryvoltage"], state["batterycurrent"], state["loadvoltage"], state["loadcurrent"], state["solarpanelvoltage"], state["solarpanelcurrent"], state["auxa"],state["internaltemperature"], state["internalhumidity"], batteryCharge, state["messageid"], batteryPower, loadPower, solarPower, myTEST, myTESTDescription )
                 query = "INSERT INTO SolarMax433MHZ (%s) VALUES(%s )" % (fields, values)
-                #print("query=", query)
                 cur.execute(query)
                 con.commit()
         except mdb.Error as e:
@@ -404,6 +416,8 @@ def readSensors():
     print("######")
     # last timestamp for FT020T to remove duplicates
     lastFT020TTimeStamp = ""
+    FT020Count = 0
+    IndoorReadingCountArray = [0,0,0,0,0,0,0,0]
 
     while True:
         #   Other processing can occur here as needed...
@@ -413,7 +427,7 @@ def readSensors():
 
         try:
             src, line = q.get(timeout = 1)
-            print(line.decode())
+            #print(line.decode())
         except Empty:
             pulse += 1
         else: # got line
@@ -424,9 +438,10 @@ def readSensors():
             if ( sLine.find('F007TH') != -1) or ( sLine.find('FT0300') != -1) or ( sLine.find('F016TH') != -1) or ( sLine.find('FT020T') != -1):
                 
                 if (( sLine.find('F007TH') != -1) or ( sLine.find('F016TH') != -1)): 
-                    processF016TH(sLine)
+                    processF016TH(sLine, IndoorReadingCountArray)
                 if (( sLine.find('FT0300') != -1) or ( sLine.find('FT020T') != -1)): 
-                    lastFT020TTimeStamp = processFT020T(sLine,lastFT020TTimeStamp) 
+                    lastFT020TTimeStamp = processFT020T(sLine,lastFT020TTimeStamp, FT020Count) 
+                    FT020Count = FT020Count + 1
 
             if (sLine.find('SolarMAX') != -1):
                 processSolarMAX(sLine)
