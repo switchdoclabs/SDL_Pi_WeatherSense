@@ -27,7 +27,7 @@ def build_graphAQI_figure():
     query = "SELECT timestamp, AQI, AQI24Hour FROM AQI433MHZ WHERE (TimeStamp > '%s') ORDER BY timestamp"% (before) 
     df = pd.read_sql(query, con )
     trace1 = go.Scatter(x=df.timestamp, y=df.AQI, name='AQI')
-    trace2 = go.Scatter(x=df.timestamp, y=df.AQI24Hour, name='24HourAQI')
+    trace2 = go.Scatter(x=df.timestamp, y=df.AQI24Hour, name='24HourAQI',line=dict(width=3,color = "red" ))
 
     figure={
     'data': [trace1, trace2 ],

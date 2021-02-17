@@ -120,15 +120,20 @@ def build_graphLightning_figure():
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
     query = "SELECT timestamp, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 8) ORDER BY timestamp"% (before) 
-    print("queryC=", query)
     df = pd.read_sql(query, con )
-
     df['present'] = pd.Series([0 for x in range(len(df.index))]) 
+
+    query = "SELECT timestamp, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 4) ORDER BY timestamp"% (before) 
+    df2 = pd.read_sql(query, con )
+    df2['present'] = pd.Series([0 for x in range(len(df2.index))]) 
+
     trace1 = go.Scatter(x=df.timestamp, y=df.lightninglastdistance, name='Lightning Distance', mode="markers", marker=dict(size=10, color="blue"))
     trace2 = go.Scatter(x=df.timestamp, y=df.present, name='Lightning Stroke', mode="markers", marker=dict(size=15, color = "red" ))
 
+    trace3 = go.Scatter(x=df2.timestamp, y=df2.present, name='Disruptor', mode="markers", marker=dict(size=15, color = "black" ))
+
     figure={
-    'data': [trace1, trace2 ],
+    'data': [trace1, trace2, trace3 ],
     'layout':
     go.Layout(title='WeatherSense Lightning', xaxis_title="Updated at: "+nowTime) }
     con.close()
