@@ -2,7 +2,12 @@ SwitchDoc Labs WeatherSense Open Source Protocol Monitor
 
 Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments and records to database
 
+And publishes to MQTT topic "weathersense/#"
+
+config.py contains all the support information
+
 Supports:<BR>
+
 - WeatherSense WeatherRack2<BR>
 - WeatherSense Indoor T/H Sensor<BR>
 - WeatherSense Lightning Detector<BR>

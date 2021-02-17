@@ -18,6 +18,17 @@ MySQL_Password = "password"
 # 0 is English, 1 is metric
 English_Metric= 0
 
+#configuration for MQTT
+
+enable_MQTT = True
+MQTThost="localhost"
+MQTTport=1883
+MQTTqos=0
+
+
+
+
+
 # configuration for WeatherRack2 
 # This variables tell you how often to record values for the WeahterRack2
 # You get a reading about every 45 seconds and this leads to big databases 

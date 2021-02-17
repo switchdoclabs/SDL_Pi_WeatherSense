@@ -96,34 +96,6 @@ CREATE TABLE `IndoorTHSensors` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `LoRaSolarData`
---
-
-CREATE TABLE `LoRaSolarData` (
-  `ID` int(11) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  `protocolID` int(11) NOT NULL,
-  `softwareversion` int(11) NOT NULL,
-  `batteryvoltage` float NOT NULL,
-  `batterycurrent` float NOT NULL,
-  `loadvoltage` float NOT NULL,
-  `loadcurrent` float NOT NULL,
-  `solarvoltage` float NOT NULL,
-  `solarcurrent` float NOT NULL,
-  `auxa` float NOT NULL,
-  `solarmaxtemperature` float NOT NULL,
-  `solarmaxhumidity` float NOT NULL,
-  `batterycharge` float NOT NULL,
-  `messageID` int(11) NOT NULL,
-  `batterypower` float NOT NULL,
-  `loadpower` float NOT NULL,
-  `solarpower` float NOT NULL,
-  `test` text NOT NULL,
-  `testdescription` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `SolarMax433MHZ`
@@ -240,12 +212,6 @@ ALTER TABLE `IndoorTHSensors`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `LoRaSolarData`
---
-ALTER TABLE `LoRaSolarData`
-  ADD PRIMARY KEY (`ID`);
-
---
 -- Indexes for table `SolarMax433MHZ`
 --
 ALTER TABLE `SolarMax433MHZ`
@@ -285,11 +251,6 @@ ALTER TABLE `Generic`
 ALTER TABLE `IndoorTHSensors`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `LoRaSolarData`
---
-ALTER TABLE `LoRaSolarData`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `SolarMax433MHZ`

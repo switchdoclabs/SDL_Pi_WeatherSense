@@ -15,6 +15,7 @@ import MySQLdb as mdb
 import traceback
 import state
 
+from paho.mqtt import publish
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #cmd = [ '/usr/local/bin/rtl_433', '-q', '-F', 'json', '-R', '147']
@@ -46,6 +47,22 @@ def randomadd(value, spread):
     return round(value+random.uniform(-spread, spread),2)
 
 
+# MQTT Publish Line
+def mqtt_publish_single(message, topic):
+    topic = '{0}/{1}'.format("weathersense", topic) 
+    try:
+		    publish.single(
+			    topic=topic,
+			    payload=message,
+			    hostname=config.MQTThost,
+			    port=config.MQTTport,
+			    qos=config.MQTTqos
+		    )
+    except: 
+            traceback.print_exc()
+            print('Mosquitto not available')
+
+
 # process functions
 import gpiozero
 
@@ -59,6 +76,9 @@ def processFT020T(sLine, lastFT020TTimeStamp, ReadingCount):
         sys.stdout.write('ReadingCount=: ' + str(ReadingCount) + '\n')
 
     var = json.loads(sLine)
+
+    if (config.enable_MQTT == True):
+        mqtt_publish_single(sLine, "FT020T")
 
     if (lastFT020TTimeStamp == var["time"]):
         # duplicate
@@ -185,6 +205,9 @@ def processF016TH(sLine, ReadingCountArray):
     
     var = json.loads(sLine)
 
+    if (config.enable_MQTT == True):
+        mqtt_publish_single(sLine, "F016TH")
+
     lastIndoorReading = nowStr()
 
     # check for reading count per device
@@ -237,13 +260,23 @@ def processF016TH(sLine, ReadingCountArray):
 
 # processes Generic Packets 
 def processWeatherSenseGeneric(sLine):
+
+    if (config.enable_MQTT == True):
+        mqtt_publish_single(sLine, "Generic")
+
     return
 
 def processWeatherSenseTB(sLine):
     # weathersense protocol 16
     state = json.loads(sLine)
     myProtocol = state['weathersenseprotocol']
-    
+
+
+
+    if (config.enable_MQTT == True):
+        mqtt_publish_single(sLine, "WSLightning")
+
+
     if (config.enable_MySQL_Logging == True):	
 	    # open mysql database
 	    # write log
@@ -289,6 +322,10 @@ def processWeatherSenseAQI(sLine):
     state = json.loads(sLine)
     myProtocol = state['weathersenseprotocol']
     
+
+    if (config.enable_MQTT == True):
+        mqtt_publish_single(sLine, "WSAQI")
+
     if (config.enable_MySQL_Logging == True):	
 	    # open mysql database
 	    # write log
@@ -353,6 +390,10 @@ def processSolarMAX(sLine):
  # only accept SolarMAX Protocols (8,10,11)
  myProtocol = state['weathersenseprotocol']
  if ((myProtocol == 8) or (myProtocol == 10) or (myProtocol == 11)):
+
+   if (config.enable_MQTT == True):
+        mqtt_publish_single(sLine, "WSSolarMAX")
+
    if (config.enable_MySQL_Logging == True):	
 	    # open mysql database
 	    # write log
