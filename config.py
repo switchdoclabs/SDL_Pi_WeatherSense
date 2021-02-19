@@ -1,35 +1,34 @@
-
 #
 #
 # configuration file - contains customization for WeatherSense 
 #
 
 from builtins import hex
+
 SWDEBUG = True
 
-SWVERSION = "000" # set in WeatherSenseMontor.py
-import uuid 
-  
-#MySQL Logging and Password Information
+SWVERSION = "000"  # set in WeatherSenseMontor.py
+import uuid
+
+# MySQL Logging and Password Information
 
 enable_MySQL_Logging = True
-MySQL_Password = "password"
+MySQL_Host = "localhost"
+MySQL_User = "root"
+MySQL_Password = "YOUR-PASSWORD"
+MySQL_Schema = "WeatherSenseWireless"
 
 # 0 is English, 1 is metric
-English_Metric= 0
+English_Metric = 0
 
-#configuration for MQTT
+# configuration for MQTT
 
-enable_MQTT = True
-MQTThost="localhost"
-MQTTport=1883
-MQTTqos=0
+enable_MQTT = False
+MQTThost = "localhost"
+MQTTport = 1883
+MQTTqos = 0
 
-
-
-
-
-# configuration for WeatherRack2 
+# configuration for WeatherRack2
 # This variables tell you how often to record values for the WeahterRack2
 # You get a reading about every 45 seconds and this leads to big databases 
 # about 14,000 records a week.  Remember that each FT020 Transmission is
