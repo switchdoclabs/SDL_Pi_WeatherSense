@@ -1,39 +1,32 @@
-
-
-import dash
+# import dash
 import dash_bootstrap_components as dbc
-import dash_html_components as html
+# import dash_html_components as html
 
-from dash.dependencies import Input, Output
+# from dash.dependencies import Input, Output
 import dash_html_components as html
-import dash_core_components as dcc
-import dash_daq as daq
-import plotly.express as px 
-import plotly.graph_objs as go
+# import dash_core_components as dcc
+# import dash_daq as daq
+# import plotly.express as px
+# import plotly.graph_objs as go
 
-import datetime
-import traceback
+# import datetime
+# import traceback
 import sys
 
 # SGS imports
 sys.path.append("../")
 
-import state
-import config
-import json
 
+# import state
+# import config
+# import json
 
-
-
-import MySQLdb as mdb
-
+# import MySQLdb as mdb
 
 
 ################
 # 
 ################
-
-
 
 
 ################
@@ -42,8 +35,8 @@ import MySQLdb as mdb
 
 def NotImplPage():
     Row1 = html.Div(
-        [ 
-         
+        [
+
             dbc.Row(
                 [
                     html.H1(children="Page Not Implemented")
@@ -51,16 +44,9 @@ def NotImplPage():
             ),
         ]
     )
-    
+
     layout = dbc.Container([
         Row1],
         className="ni",
     )
     return layout
-
-
-
-
-
-
-

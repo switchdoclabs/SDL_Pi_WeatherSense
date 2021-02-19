@@ -45,6 +45,7 @@ CREATE TABLE `AQI433MHZ` (
   `PM2_5A` int(11) NOT NULL,
   `PM10A` int(11) NOT NULL,
   `AQI` int(11) NOT NULL,
+  `AQI24Hour` float NOT NULL,
   `batteryvoltage` float NOT NULL,
   `batterycurrent` float NOT NULL,
   `loadvoltage` float NOT NULL,

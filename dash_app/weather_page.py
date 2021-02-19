@@ -1,13 +1,12 @@
-
-import dash
+# import dash
 import dash_bootstrap_components as dbc
-import dash_html_components as html
+# import dash_html_components as html
 
-from dash.dependencies import Input, Output
+# from dash.dependencies import Input, Output
 import dash_html_components as html
 import dash_core_components as dcc
-import dash_daq as daq
-import plotly.express as px 
+# import dash_daq as daq
+# import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
@@ -33,51 +32,52 @@ import MySQLdb as mdb
 ################
 
 def returnCardinalBucket(windDirection):
-      if (windDirection >= 337.5) or (windDirection < 22.5):
-      	return 0
-      if (windDirection >= 22.5) and (windDirection < 67.5):
-      	return 1
-      if (windDirection >= 67.5) and (windDirection < 112.5):
-      	return 2
-      if (windDirection >= 112.5) and (windDirection < 157.5):
-      	return 3
-      if (windDirection >= 157.5) and (windDirection < 202.5):
-      	return 4
-      if (windDirection >= 202.5) and (windDirection < 247.5):
-      	return 5
-      if (windDirection >= 247.5) and (windDirection < 292.5):
-      	return 6
-      if (windDirection >= 292.5) and (windDirection < 337.5):
-      	return 7
+    if (windDirection >= 337.5) or (windDirection < 22.5):
+        return 0
+    if (windDirection >= 22.5) and (windDirection < 67.5):
+        return 1
+    if (windDirection >= 67.5) and (windDirection < 112.5):
+        return 2
+    if (windDirection >= 112.5) and (windDirection < 157.5):
+        return 3
+    if (windDirection >= 157.5) and (windDirection < 202.5):
+        return 4
+    if (windDirection >= 202.5) and (windDirection < 247.5):
+        return 5
+    if (windDirection >= 247.5) and (windDirection < 292.5):
+        return 6
+    if (windDirection >= 292.5) and (windDirection < 337.5):
+        return 7
 
-      return 0
+    return 0
 
 
 def returnSpeedBucket(windSpeed):
-      # in meters/second
-      if (windSpeed < 1.0):
-           return 0     
-      if (windSpeed < 2.3):
-           return 1     
-      if (windSpeed < 4.4):
-           return 2     
-      if (windSpeed < 8.5):
-           return 3     
-      if (windSpeed < 11.0):
-           return 4     
-      # greater than 11.00
-      return 5     
+    # in meters/second
+    if (windSpeed < 1.0):
+        return 0
+    if (windSpeed < 2.3):
+        return 1
+    if (windSpeed < 4.4):
+        return 2
+    if (windSpeed < 8.5):
+        return 3
+    if (windSpeed < 11.0):
+        return 4
+        # greater than 11.00
+    return 5
+
 
 ################
 # Conversion Functions
 ################
 def CRUnits(rain):
-
     English_Metric = config.English_Metric
 
     if (English_Metric == False):  # english units
-        rain = rain/25.4
+        rain = rain / 25.4
     return rain
+
 
 def RUnits():
     English_Metric = config.English_Metric
@@ -88,30 +88,32 @@ def RUnits():
 
     return units
 
-def CTUnits(temperature):
 
+def CTUnits(temperature):
     English_Metric = config.English_Metric
 
-    if (English_Metric == False):  # english units
-        temperature = (9.0/5.0 * temperature) +32.0
+    if English_Metric:  # english units
+        temperature = (9.0 / 5.0 * temperature) + 32.0
     return temperature
+
 
 def TUnits():
     English_Metric = config.English_Metric
-    if (English_Metric == False):  # english units
-        units = " F"
+    if not English_Metric:  # english units
+        units = " °F"
     else:
-        units = " C"
+        units = " °C"
 
     return units
 
-def CBUnits(barometricpressure):
 
+def CBUnits(barometricpressure):
     English_Metric = config.English_Metric
 
     if (English_Metric == False):  # english units
-        barometricpressure = barometricpressure * .2953
+        barometricpressure = barometricpressure * 0.2953
     return barometricpressure
+
 
 def BUnits():
     English_Metric = config.English_Metric
@@ -122,13 +124,14 @@ def BUnits():
 
     return units
 
-def CWUnits(wind):
 
+def CWUnits(wind):
     English_Metric = config.English_Metric
 
     if (English_Metric == False):  # english units
-        wind = wind * 2.23694 
+        wind = wind * 2.23694
     return wind
+
 
 def WUnits():
     English_Metric = config.English_Metric
@@ -140,357 +143,355 @@ def WUnits():
     return units
 
 
-
-
-
 def generateCurrentWeatherJSON():
-        try:
-                con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
-                cur = con.cursor()
-                query = "SELECT * FROM `WeatherData` ORDER BY id DESC LIMIT 1" 
-                #print("query=", query)
-                cur.execute(query)
-                records = cur.fetchall()
-                weatherRecordCount = len(records)
-                
-                #print ("queryrecords=",records)
-                # get column names
-                query = "SHOW COLUMNS FROM WeatherData"
-                cur.execute(query)
-                names = cur.fetchall()
-                fieldcount = len (names)
-                CWJSON = {}
-                for i in range(0,fieldcount):
-                    if (names[i][0] == "TimeStamp"):
-                        if (weatherRecordCount == 0): 
-                            CWJSON[names[i][0]] = 0;
-                        else:
-                            CWJSON[names[i][0]] = records[0][i]
+    try:
+        con = mdb.connect(
+            config.MySQL_Host,
+            config.MySQL_User,
+            config.MySQL_Password,
+            config.MySQL_Schema
+        )
+
+        cur = con.cursor()
+        query = "SELECT * FROM `WeatherData` ORDER BY id DESC LIMIT 1"
+        # print("query=", query)
+        cur.execute(query)
+        records = cur.fetchall()
+        weatherRecordCount = len(records)
+
+        # print ("queryrecords=",records)
+        # get column names
+        query = "SHOW COLUMNS FROM WeatherData"
+        cur.execute(query)
+        names = cur.fetchall()
+        fieldcount = len(names)
+        CWJSON = {}
+        for i in range(0, fieldcount):
+            if (names[i][0] == "TimeStamp"):
+                if (weatherRecordCount == 0):
+                    CWJSON[names[i][0]] = 0;
+                else:
+                    CWJSON[names[i][0]] = records[0][i]
+            else:
+                if (names[i][0] == "BatteryOK"):
+                    if (weatherRecordCount == 0):
+                        CWJSON[names[i][0]] = "LOW";
                     else:
-                      if (names[i][0] == "BatteryOK"):
-                       if (weatherRecordCount == 0): 
-                              CWJSON[names[i][0]] = "LOW";
-                       else:
-                              CWJSON[names[i][0]] = records[0][i]
-                      else:
-                       if (weatherRecordCount == 0): 
-                              CWJSON[names[i][0]] = 0;
-                       else:
-                              CWJSON[names[i][0]] = float(records[0][i])
-                if (weatherRecordCount == 0): 
-                    CWJSON["StringTime"] = "" 
+                        CWJSON[names[i][0]] = records[0][i]
                 else:
-                    CWJSON["StringTime"] = records[0][1].strftime("%d-%b-%Y %H:%M:%S") 
-                CWJSON["StringTimeUnits"] = ""
+                    if (weatherRecordCount == 0):
+                        CWJSON[names[i][0]] = 0;
+                    else:
+                        CWJSON[names[i][0]] = float(records[0][i])
+        if (weatherRecordCount == 0):
+            CWJSON["StringTime"] = ""
+        else:
+            CWJSON["StringTime"] = records[0][1].strftime("%d-%b-%Y %H:%M:%S")
+        CWJSON["StringTimeUnits"] = ""
 
-                # now calculate rain 
-                
-                # calendar day rain
-                query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE DATE(TimeStamp) = CURDATE() ORDER by id ASC"
-                cur.execute(query)
-                rainspanrecords = cur.fetchall()
-                if (len(rainspanrecords) > 0):
-                    rainspan = rainspanrecords[len(rainspanrecords)-1][1] - rainspanrecords[0][1]
-                else:
-                    rainspan = 0
-                CWJSON["CalendarDayRain"] = round(rainspan,2)
+        # now calculate rain
 
-                # Calendar Month 
-                query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE MONTH(TimeStamp) = MONTH(NOW()) AND YEAR(TimeStamp) = YEAR(NOW())"
-                cur.execute(query)
-                rainspanrecords = cur.fetchall()
+        # calendar day rain
+        query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE DATE(TimeStamp) = CURDATE() ORDER by id ASC"
+        cur.execute(query)
+        rainspanrecords = cur.fetchall()
+        if (len(rainspanrecords) > 0):
+            rainspan = rainspanrecords[len(rainspanrecords) - 1][1] - rainspanrecords[0][1]
+        else:
+            rainspan = 0
+        CWJSON["CalendarDayRain"] = round(rainspan, 2)
 
-                if (len(rainspanrecords) > 0):
-                    rainspan = rainspanrecords[len(rainspanrecords)-1][1] - rainspanrecords[0][1]
-                else:
-                    rainspan = 0
-                CWJSON["CalendarMonthRain"] = round(rainspan,2)
-                
-                # last 30 days 
-                timeDelta = datetime.timedelta(days=30)
-                now = datetime.datetime.now()
-                before = now - timeDelta
-                before = before.strftime('%Y-%m-%d %H:%M:%S')
-                query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (before)
+        # Calendar Month
+        query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE MONTH(TimeStamp) = MONTH(NOW()) AND YEAR(TimeStamp) = YEAR(NOW())"
+        cur.execute(query)
+        rainspanrecords = cur.fetchall()
 
-                cur.execute(query)
-                rainspanrecords = cur.fetchall()
+        if (len(rainspanrecords) > 0):
+            rainspan = rainspanrecords[len(rainspanrecords) - 1][1] - rainspanrecords[0][1]
+        else:
+            rainspan = 0
+        CWJSON["CalendarMonthRain"] = round(rainspan, 2)
 
-                if (len(rainspanrecords) > 0):
-                    rainspan = rainspanrecords[len(rainspanrecords)-1][1] - rainspanrecords[0][1]
-                else:
-                    rainspan = 0
-                CWJSON["30DayRain"] = round(rainspan,2)
-                
-                
-                # last 24 hours 
-                timeDelta = datetime.timedelta(days=1)
-                now = datetime.datetime.now()
-                before = now - timeDelta
-                before = before.strftime('%Y-%m-%d %H:%M:%S')
-                query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (before)
+        # last 30 days
+        timeDelta = datetime.timedelta(days=30)
+        now = datetime.datetime.now()
+        before = now - timeDelta
+        before = before.strftime('%Y-%m-%d %H:%M:%S')
+        query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (
+            before)
 
-                cur.execute(query)
-                rainspanrecords = cur.fetchall()
+        cur.execute(query)
+        rainspanrecords = cur.fetchall()
 
-                if (len(rainspanrecords) > 0):
-                    rainspan = rainspanrecords[len(rainspanrecords)-1][1] - rainspanrecords[0][1]
-                else:
-                    rainspan = 0
-                CWJSON["24HourRain"] = round(rainspan,2)
-                
-                
-                # last 7 days 
-                timeDelta = datetime.timedelta(days=7)
-                now = datetime.datetime.now()
-                before = now - timeDelta
-                before = before.strftime('%Y-%m-%d %H:%M:%S')
-                query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (before)
+        if (len(rainspanrecords) > 0):
+            rainspan = rainspanrecords[len(rainspanrecords) - 1][1] - rainspanrecords[0][1]
+        else:
+            rainspan = 0
+        CWJSON["30DayRain"] = round(rainspan, 2)
 
-                cur.execute(query)
-                rainspanrecords = cur.fetchall()
+        # last 24 hours
+        timeDelta = datetime.timedelta(days=1)
+        now = datetime.datetime.now()
+        before = now - timeDelta
+        before = before.strftime('%Y-%m-%d %H:%M:%S')
+        query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (
+            before)
 
-                if (len(rainspanrecords) > 0):
-                    rainspan = rainspanrecords[len(rainspanrecords)-1][1] - rainspanrecords[0][1]
-                else:
-                    rainspan = 0
-                CWJSON["7DaysRain"] = round(rainspan,2)
-               
-                # add inside temperature and humidity (not compatible with SkyWeather2)
-                query = "SELECT * FROM IndoorTHSensors ORDER BY id LIMIT 0, 1" 
-                cur.execute(query)
-                itih = cur.fetchall()
-                print(itih)
-                if (len(itih) > 0):
-                    CWJSON["IndoorTemperature"] = itih[0][4]
-                    CWJSON["IndoorHumidity"] = itih[0][5]
+        cur.execute(query)
+        rainspanrecords = cur.fetchall()
 
-            
-                                
-                
-                con.commit()
-                
-                # convert to appropiate units and add units
-                # set units
-                
-                English_Metric = config.English_Metric
-                
-                if (English_Metric == False):
-                    # deal with English Units
-                    # temperature
-                    CWJSON["OutdoorTemperature"]= round(CTUnits(CWJSON["OutdoorTemperature"]),1)
-                    CWJSON["OutdoorTemperatureUnits"] = TUnits() 
-                    CWJSON["IndoorTemperature"]= round(CTUnits(CWJSON["IndoorTemperature"]),1)
-                    
-                    CWJSON["IndoorTemperatureUnits"] = TUnits() 
-                    CWJSON["BarometricTemperature"]= round(CTUnits(CWJSON["BarometricTemperature"]),1)
-                    CWJSON["BarometricTemperatureUnits"] = TUnits() 
+        if (len(rainspanrecords) > 0):
+            rainspan = rainspanrecords[len(rainspanrecords) - 1][1] - rainspanrecords[0][1]
+        else:
+            rainspan = 0
+        CWJSON["24HourRain"] = round(rainspan, 2)
 
-                    # wind units
-                    CWJSON["WindSpeed"]= round(CWUnits(CWJSON["WindSpeed"]),1)
-                    CWJSON["WindSpeedUnits"] = WUnits() 
-                    CWJSON["WindGust"]= round(CWUnits(CWJSON["WindGust"]),1)
-                    CWJSON["WindGustUnits"] = WUnits() 
+        # last 7 days
+        timeDelta = datetime.timedelta(days=7)
+        now = datetime.datetime.now()
+        before = now - timeDelta
+        before = before.strftime('%Y-%m-%d %H:%M:%S')
+        query = "SELECT id, TotalRain, TimeStamp FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (
+            before)
 
-                    # rain units
-                    CWJSON["TotalRain"]= round(CRUnits(CWJSON["TotalRain"]),1)
-                    CWJSON["TotalRainUnits"] = RUnits() 
-                    CWJSON["CalendarDayRain"]= round(CRUnits(CWJSON["CalendarDayRain"]),1)
-                    CWJSON["CalendarDayRainUnits"] = RUnits() 
-                    CWJSON["CalendarMonthRain"]= round(CRUnits(CWJSON["CalendarMonthRain"]),1)
-                    CWJSON["CalendarMonthRainUnits"] = RUnits() 
-                    CWJSON["30DayRain"]= round(CRUnits(CWJSON["30DayRain"]),1)
-                    CWJSON["30DayRainUnits"] = RUnits() 
-                    CWJSON["24HourRain"]= round(CRUnits(CWJSON["24HourRain"]),1)
-                    CWJSON["24HourRainUnits"] = RUnits() 
-                    CWJSON["7DaysRain"]= round(CRUnits(CWJSON["7DaysRain"]),1)
-                    CWJSON["7DaysRainUnits"] = RUnits() 
+        cur.execute(query)
+        rainspanrecords = cur.fetchall()
 
-                    # Barometric Pressure
-                    CWJSON["BarometricPressureSeaLevel"]= round(CBUnits(CWJSON["BarometricPressureSeaLevel"]),2)
-                    CWJSON["BarometricPressureSeaLevelUnits"] = BUnits() 
-                    CWJSON["BarometricPressure"]= round(CBUnits(CWJSON["BarometricPressure"]),2)
-                    CWJSON["BarometricPressureUnits"] = BUnits() 
-                    
-                else:
-                    # temperature units
-                    CWJSON["OutdoorTemperatureUnits"] = TUnits() 
-                    CWJSON["IndoorTemperatureUnits"] = TUnits() 
-                    CWJSON["BarometricTemperatureUnits"] = TUnits() 
-                    # wind units
-                    CWJSON["WindSpeedUnits"] = WUnits() 
-                    CWJSON["WindGustUnits"] = WUnits() 
-                    # rain units
-                    CWJSON["TotalRainUnits"] = RUnits() 
-                    CWJSON["CalendarDayRainUnits"] = RUnits() 
-                    CWJSON["CalendarMonthRainUnits"] = RUnits() 
-                    CWJSON["30DayRainUnits"] = RUnits() 
-                    CWJSON["24HourRainUnits"] = RUnits() 
-                    CWJSON["7DaysRainUnits"] = RUnits() 
-                    # Barometric Pressure
-                    CWJSON["BarometricPressureSeaLevelUnits"] = BUnits() 
-                    CWJSON["BarometricPressureUnits"] = BUnits() 
+        if (len(rainspanrecords) > 0):
+            rainspan = rainspanrecords[len(rainspanrecords) - 1][1] - rainspanrecords[0][1]
+        else:
+            rainspan = 0
+        CWJSON["7DaysRain"] = round(rainspan, 2)
 
-                # always same units
-                CWJSON["OutdoorHumidityUnits"] = "%"
-                CWJSON["IndoorHumidityUnits"] = "%"
-                CWJSON["SunlightVisibleUnits"] = "lux"
-                CWJSON["SunlightUVIndexUnits"] = ""
-                CWJSON["AQIUnits"] = ""
-                CWJSON["AQI24AverageUnits"] = ""
-                CWJSON["WindDirectionUnits"] = "deg"
+        # add inside temperature and humidity (not compatible with SkyWeather2)
+        query = "SELECT * FROM IndoorTHSensors ORDER BY id LIMIT 0, 1"
+        cur.execute(query)
+        itih = cur.fetchall()
+        print(itih)
+        if (len(itih) > 0):
+            CWJSON["IndoorTemperature"] = itih[0][4]
+            CWJSON["IndoorHumidity"] = itih[0][5]
 
+        con.commit()
 
-                
+        # convert to appropiate units and add units
+        # set units
 
-                return CWJSON
-        except: 
-                traceback.print_exc()
-                #sys.exit(1)
+        English_Metric = config.English_Metric
 
-        finally:
-                cur.close()
-                con.close()
-        print("done generating CWJSON=", CWJSON)
+        if (English_Metric == False):
+            # deal with English Units
+            # temperature
+            CWJSON["OutdoorTemperature"] = round(CTUnits(CWJSON["OutdoorTemperature"]), 1)
+            CWJSON["OutdoorTemperatureUnits"] = TUnits()
+            CWJSON["IndoorTemperature"] = round(CTUnits(CWJSON["IndoorTemperature"]), 1)
+
+            CWJSON["IndoorTemperatureUnits"] = TUnits()
+            CWJSON["BarometricTemperature"] = round(CTUnits(CWJSON["BarometricTemperature"]), 1)
+            CWJSON["BarometricTemperatureUnits"] = TUnits()
+
+            # wind units
+            CWJSON["WindSpeed"] = round(CWUnits(CWJSON["WindSpeed"]), 1)
+            CWJSON["WindSpeedUnits"] = WUnits()
+            CWJSON["WindGust"] = round(CWUnits(CWJSON["WindGust"]), 1)
+            CWJSON["WindGustUnits"] = WUnits()
+
+            # rain units
+            CWJSON["TotalRain"] = round(CRUnits(CWJSON["TotalRain"]), 1)
+            CWJSON["TotalRainUnits"] = RUnits()
+            CWJSON["CalendarDayRain"] = round(CRUnits(CWJSON["CalendarDayRain"]), 1)
+            CWJSON["CalendarDayRainUnits"] = RUnits()
+            CWJSON["CalendarMonthRain"] = round(CRUnits(CWJSON["CalendarMonthRain"]), 1)
+            CWJSON["CalendarMonthRainUnits"] = RUnits()
+            CWJSON["30DayRain"] = round(CRUnits(CWJSON["30DayRain"]), 1)
+            CWJSON["30DayRainUnits"] = RUnits()
+            CWJSON["24HourRain"] = round(CRUnits(CWJSON["24HourRain"]), 1)
+            CWJSON["24HourRainUnits"] = RUnits()
+            CWJSON["7DaysRain"] = round(CRUnits(CWJSON["7DaysRain"]), 1)
+            CWJSON["7DaysRainUnits"] = RUnits()
+
+            # Barometric Pressure
+            CWJSON["BarometricPressureSeaLevel"] = round(CBUnits(CWJSON["BarometricPressureSeaLevel"]), 2)
+            CWJSON["BarometricPressureSeaLevelUnits"] = BUnits()
+            CWJSON["BarometricPressure"] = round(CBUnits(CWJSON["BarometricPressure"]), 2)
+            CWJSON["BarometricPressureUnits"] = BUnits()
+
+        else:
+            # temperature units
+            CWJSON["OutdoorTemperatureUnits"] = TUnits()
+            CWJSON["IndoorTemperatureUnits"] = TUnits()
+            CWJSON["BarometricTemperatureUnits"] = TUnits()
+            # wind units
+            CWJSON["WindSpeedUnits"] = WUnits()
+            CWJSON["WindGustUnits"] = WUnits()
+            # rain units
+            CWJSON["TotalRainUnits"] = RUnits()
+            CWJSON["CalendarDayRainUnits"] = RUnits()
+            CWJSON["CalendarMonthRainUnits"] = RUnits()
+            CWJSON["30DayRainUnits"] = RUnits()
+            CWJSON["24HourRainUnits"] = RUnits()
+            CWJSON["7DaysRainUnits"] = RUnits()
+            # Barometric Pressure
+            CWJSON["BarometricPressureSeaLevelUnits"] = BUnits()
+            CWJSON["BarometricPressureUnits"] = BUnits()
+
+            # always same units
+        CWJSON["OutdoorHumidityUnits"] = "%"
+        CWJSON["IndoorHumidityUnits"] = "%"
+        CWJSON["SunlightVisibleUnits"] = "lux"
+        CWJSON["SunlightUVIndexUnits"] = ""
+        CWJSON["AQIUnits"] = ""
+        CWJSON["AQI24AverageUnits"] = ""
+        CWJSON["WindDirectionUnits"] = "°"
+
         return CWJSON
+    except:
+        traceback.print_exc()
+        # sys.exit(1)
 
+    finally:
+        cur.close()
+        con.close()
+    print("done generating CWJSON=", CWJSON)
+    return CWJSON
 
 
 def fetchWindData(timeDelta):
-        try:
-                #print("trying database")
-                con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
-                cur = con.cursor()
-                now = datetime.datetime.now()
-                before = now - timeDelta
-                before = before.strftime('%Y-%m-%d %H:%M:%S')
-                query = "SELECT WindSpeed, WindDirection FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (before)
-                #print("query=", query)
-                cur.execute(query)
-                con.commit()
-                records = cur.fetchall()
-                #print ("Query records=", records)
-                print ("number of Records =",len(records))
-                totalRecords = len(records)
-                # now calculate buckets
-                # 8 cardinal directions 0 - 360
-                # 6 wind buckets
-                df = [[],[],[],[],[],[]]
-                for i in range(0,6):
-                    df[i] = [0,0,0,0,0,0,0,0]
-                
-                for single in records:
-                      windSpeed = single[0]
-                      windDirection = single[1]
-                      CB = returnCardinalBucket(windDirection)
-                      SB = returnSpeedBucket(windSpeed)
-                      #print("SB, CB=", SB, CB)
-                      df[SB][CB] = df[SB][CB] + 1
-                #print ("df=", df)
-                #print("number of records=", totalRecords)      
-                # normalize df
-                if (totalRecords == 0):
-                    return df
-                for single in df:
-                     for i in range(0,8):
-                          single[i] = round(100.0*float(single[i])/float(totalRecords), 2)
-		  
+    try:
+        con = mdb.connect(
+            config.MySQL_Host,
+            config.MySQL_User,
+            config.MySQL_Password,
+            config.MySQL_Schema
+        )
 
-		
-                return df
-        except mdb.Error as e:
-                traceback.print_exc()
-                print("Error %d: %s" % (e.args[0],e.args[1]))
-                con.rollback()
-                #sys.exit(1)
+        cur = con.cursor()
+        now = datetime.datetime.now()
+        before = now - timeDelta
+        before = before.strftime('%Y-%m-%d %H:%M:%S')
+        query = "SELECT WindSpeed, WindDirection FROM WeatherData WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (
+            before)
+        # print("query=", query)
+        cur.execute(query)
+        con.commit()
+        records = cur.fetchall()
+        # print ("Query records=", records)
+        print("number of Records =", len(records))
+        totalRecords = len(records)
+        # now calculate buckets
+        # 8 cardinal directions 0 - 360
+        # 6 wind buckets
+        df = [[], [], [], [], [], []]
+        for i in range(0, 6):
+            df[i] = [0, 0, 0, 0, 0, 0, 0, 0]
 
-        finally:
-                cur.close()
-                con.close()
-
-
-	
+        for single in records:
+            windSpeed = single[0]
+            windDirection = single[1]
+            CB = returnCardinalBucket(windDirection)
+            SB = returnSpeedBucket(windSpeed)
+            # print("SB, CB=", SB, CB)
+            df[SB][CB] = df[SB][CB] + 1
+        # print ("df=", df)
+        # print("number of records=", totalRecords)
+        # normalize df
+        if (totalRecords == 0):
+            return df
+        for single in df:
+            for i in range(0, 8):
+                single[i] = round(100.0 * float(single[i]) / float(totalRecords), 2)
 
         return df
+    except mdb.Error as e:
+        traceback.print_exc()
+        print("Error %d: %s" % (e.args[0], e.args[1]))
+        # con.rollback()
+        # sys.exit(1)
+
+    finally:
+        cur.close()
+        con.close()
+
+    return df
+
 
 def returnNumberConverted(speed):
     speed = CWUnits(speed)
-    return str(round(speed,1))
+    return str(round(speed, 1))
+
 
 def figCompassRose(df):
+    '''
+df = [77.5, 72.5, 70.0, 45.0, 22.5, 42.5, 40.0, 62.5]
+    fig = px.bar_polar(df, r="frequency", theta="direction",
+          color="strength", template="plotly_dark",
+          color_discrete_sequence= px.colors.sequential.Plasma_r)
+    '''
+    # print("df =", df)
+    fig = go.Figure(
+    )
+    fig.add_trace(go.Barpolar(
+        r=df[5],
 
-        '''
-	df = [77.5, 72.5, 70.0, 45.0, 22.5, 42.5, 40.0, 62.5]
-        fig = px.bar_polar(df, r="frequency", theta="direction",
-              color="strength", template="plotly_dark",
-              color_discrete_sequence= px.colors.sequential.Plasma_r)
-        '''
-        #print("df =", df) 
-        fig = go.Figure(
-           )
-        fig.add_trace(go.Barpolar(
-            r=df[5],
+        name='> ' + returnNumberConverted(11) + " " + WUnits(),
+        marker_color='rgb(40,0,163)'
+    ))
+    fig.add_trace(go.Barpolar(
+        r=df[4],
+        name=returnNumberConverted(8.5) + '-' + returnNumberConverted(11) + " " + WUnits(),
+        marker_color='rgb(80,0,163)'
+    ))
 
-            name='> ' + returnNumberConverted(11) + " " + WUnits(),
-            marker_color='rgb(40,0,163)'
-        ))
-        fig.add_trace(go.Barpolar(
-            r=df[4],
-            name=returnNumberConverted(8.5) +'-'+returnNumberConverted(11) + " " + WUnits(),
-            marker_color='rgb(80,0,163)'
-        ))
-        
-        fig.add_trace(go.Barpolar(
-            r=df[3],
-            name=returnNumberConverted(4.4) +'-'+returnNumberConverted(8.5) + " " + WUnits(),
-            marker_color='rgb(120,0,163)'
-        ))
-        fig.add_trace(go.Barpolar(
-            r=df[2],
-            name=returnNumberConverted(2.2) +'-'+returnNumberConverted(4.4) + " " + WUnits(),
-            marker_color='rgb(160,0,163)'
-        ))
-        fig.add_trace(go.Barpolar(
-            r=df[1],
-            name=returnNumberConverted(1.0) +'-'+returnNumberConverted(2.3) + " " + WUnits(),
-            marker_color='rgb(200,0,163)'
-        ))
-        fig.add_trace(go.Barpolar(
-            r=df[0],
-            name=returnNumberConverted(0.0) +'-'+returnNumberConverted(1) + " " + WUnits(),
-            marker_color='rgb(240,0,163)'
-        ))
-       
-        fig.update_traces(text=['North', 'N-E', 'East', 'S-E', 'South', 'S-W', 'West', 'N-W'])
-        fig.update_layout(
-            title='Wind Speed Distribution Past Week',
-            #font_size=16,
-            legend_font_size=16,
-            #polar_radialaxis_ticksuffix='%',
-            #polar_angularaxis_rotation=90,
-            font=dict(size=16), 
-            polar=dict(
-               radialaxis=dict(ticksuffix="%",angle=45,tickfont=dict(size=12)),
-               angularaxis=dict(direction="clockwise",tickfont=dict(size=14)),
-	       ),
-              #color_discrete_sequence= go.colors.sequential.Plasma_r,
-	    
-	    template='plotly_dark',
+    fig.add_trace(go.Barpolar(
+        r=df[3],
+        name=returnNumberConverted(4.4) + '-' + returnNumberConverted(8.5) + " " + WUnits(),
+        marker_color='rgb(120,0,163)'
+    ))
+    fig.add_trace(go.Barpolar(
+        r=df[2],
+        name=returnNumberConverted(2.2) + '-' + returnNumberConverted(4.4) + " " + WUnits(),
+        marker_color='rgb(160,0,163)'
+    ))
+    fig.add_trace(go.Barpolar(
+        r=df[1],
+        name=returnNumberConverted(1.0) + '-' + returnNumberConverted(2.3) + " " + WUnits(),
+        marker_color='rgb(200,0,163)'
+    ))
+    fig.add_trace(go.Barpolar(
+        r=df[0],
+        name=returnNumberConverted(0.0) + '-' + returnNumberConverted(1) + " " + WUnits(),
+        marker_color='rgb(240,0,163)'
+    ))
 
-        )
-        return fig
+    fig.update_traces(text=['North', 'N-E', 'East', 'S-E', 'South', 'S-W', 'West', 'N-W'])
+    fig.update_layout(
+        title='Wind Speed Distribution Past Week',
+        # font_size=16,
+        legend_font_size=16,
+        # polar_radialaxis_ticksuffix='%',
+        # polar_angularaxis_rotation=90,
+        font=dict(size=16),
+        polar=dict(
+            radialaxis=dict(ticksuffix="%", angle=45, tickfont=dict(size=12)),
+            angularaxis=dict(direction="clockwise", tickfont=dict(size=14)),
+        ),
+        # color_discrete_sequence= go.colors.sequential.Plasma_r,
+
+        template='plotly_dark',
+
+    )
+    return fig
+
 
 def buildCompassRose():
+    layout = []
+    myLabelLayout = []
 
-      layout = []
-      myLabelLayout = []
-
-      timeDelta = datetime.timedelta(days=7)
-      data = fetchWindData(timeDelta)
-      fig = figCompassRose(data)
-      layout.append(dcc.Graph(id={"type": "WPRdynamic", "index": "compassrose"},figure=fig))	
-      return layout
-
+    timeDelta = datetime.timedelta(days=7)
+    data = fetchWindData(timeDelta)
+    fig = figCompassRose(data)
+    layout.append(dcc.Graph(id={"type": "WPRdynamic", "index": "compassrose"}, figure=fig))
+    return layout
 
 
 ###################
@@ -498,35 +499,39 @@ def buildCompassRose():
 ###################
 
 def fetchOTH(timeDelta):
+    try:
+        # print("trying database")
+        con = mdb.connect(
+            config.MySQL_Host,
+            config.MySQL_User,
+            config.MySQL_Password,
+            config.MySQL_Schema
+        )
 
-        try:
-                #print("trying database")
-                con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
-                cur = con.cursor()
-                now = datetime.datetime.now()
-                before = now - timeDelta
-                before = before.strftime('%Y-%m-%d %H:%M:%S')
-                query = "SELECT OutdoorTemperature, OutdoorHumidity, TimeStamp FROM `WeatherData` WHERE (TimeStamp > '%s') ORDER BY id ASC" % (before)
-                #print("query=", query)
-                cur.execute(query)
-                con.commit()
-                records = cur.fetchall()
-                #print ("Query records=", records)
-                return records
-        except mdb.Error as e:
-                traceback.print_exc()
-                print("Error %d: %s" % (e.args[0],e.args[1]))
-                con.rollback()
-                #sys.exit(1)
+        cur = con.cursor()
+        now = datetime.datetime.now()
+        before = now - timeDelta
+        before = before.strftime('%Y-%m-%d %H:%M:%S')
+        query = "SELECT OutdoorTemperature, OutdoorHumidity, TimeStamp FROM `WeatherData` WHERE (TimeStamp > '%s') ORDER BY id ASC" % (
+            before)
+        # print("query=", query)
+        cur.execute(query)
+        con.commit()
+        records = cur.fetchall()
+        # print ("Query records=", records)
+        return records
+    except mdb.Error as e:
+        traceback.print_exc()
+        print("Error %d: %s" % (e.args[0], e.args[1]))
+        con.rollback()
+        # sys.exit(1)
 
-        finally:
-                cur.close()
-                con.close()
-
+    finally:
+        cur.close()
+        con.close()
 
 
 def buildOutdoorTemperature_Humidity_Graph_Figure():
-    
     timeDelta = datetime.timedelta(days=7)
     records = fetchOTH(timeDelta)
 
@@ -550,11 +555,11 @@ def buildOutdoorTemperature_Humidity_Graph_Figure():
 
     if (English_Metric == False):  # english units
         for i in range(0, len(Temperature)):
-            Temperature[i] = (9.0/5.0 * Temperature[i]) +32.0
+            Temperature[i] = (9.0 / 5.0 * Temperature[i]) + 32.0
         units = "F"
     else:
         units = "C"
-    
+
     # Create figure with secondary y-axis
     fig = go.Figure()
 
@@ -563,22 +568,22 @@ def buildOutdoorTemperature_Humidity_Graph_Figure():
     # Add traces
     fig.add_trace(
         go.Scatter(x=Time, y=Temperature, name="Temperature",
-        line = dict(
-                    color = ('red'),
-                    width = 2,
-                    ),
-       ), 
-                    secondary_y = False,
+                   line=dict(
+                       color=('red'),
+                       width=2,
+                   ),
+                   ),
+        secondary_y=False,
     )
 
     fig.add_trace(
-        go.Scatter(x=Time, y=Humidity, name="Humidity", 
-        line = dict(
-                    color = ('blue'),
-                    width = 2,
-                    ),
-        ),
-                    secondary_y = True
+        go.Scatter(x=Time, y=Humidity, name="Humidity",
+                   line=dict(
+                       color=('blue'),
+                       width=2,
+                   ),
+                   ),
+        secondary_y=True
     )
 
     # Add figure title
@@ -588,54 +593,60 @@ def buildOutdoorTemperature_Humidity_Graph_Figure():
 
     # Set x-axis title
     fig.update_xaxes(title_text="Time")
-   
-    minTemp = min(Temperature)*0.9
-    maxTemp = max(Temperature)*1.10
+
+    minTemp = min(Temperature) * 0.9
+    maxTemp = max(Temperature) * 1.10
     # Set y-axes titles
-    fig.update_yaxes(title_text="<b>Temperature ("+units+")</b>", range = (minTemp, maxTemp), secondary_y=False, side='left')
-    fig.update_yaxes(title_text="<b>Humidity (%)</b>", range = (0,100), secondary_y=True, side='right')
-    
+    fig.update_yaxes(title_text="<b>Temperature (" + units + ")</b>", range=(minTemp, maxTemp), secondary_y=False,
+                     side='left')
+    fig.update_yaxes(title_text="<b>Humidity (%)</b>", range=(0, 100), secondary_y=True, side='right')
+
     return fig
 
-def buildOutdoorTemperature_Humidity_Graph():
 
+def buildOutdoorTemperature_Humidity_Graph():
     fig = buildOutdoorTemperature_Humidity_Graph_Figure()
 
-    graph =  dcc.Graph(
-                    id = {'type' : 'WPGdynamic', 'index': 'graph-oth' },
-                    figure=fig,
-                    animate = False
-                    )
+    graph = dcc.Graph(
+        id={'type': 'WPGdynamic', 'index': 'graph-oth'},
+        figure=fig,
+        animate=False
+    )
     return graph
-
 
 
 ################################
 def fetchSUV(timeDelta):
+    try:
+        # print("trying database")
+        con = mdb.connect(
+            config.MySQL_Host,
+            config.MySQL_User,
+            config.MySQL_Password,
+            config.MySQL_Schema
+        )
 
-        try:
-                #print("trying database")
-                con = mdb.connect('localhost', 'root', config.MySQL_Password, 'WeatherSenseWireless');
-                cur = con.cursor()
-                now = datetime.datetime.now()
-                before = now - timeDelta
-                before = before.strftime('%Y-%m-%d %H:%M:%S')
-                query = "SELECT SunlightVisible, SunlightUVIndex, TimeStamp FROM `WeatherData` WHERE (TimeStamp > '%s') ORDER BY id ASC" % (before)
-                #print("query=", query)
-                cur.execute(query)
-                con.commit()
-                records = cur.fetchall()
-                #print ("Query records=", records)
-                return records
-        except mdb.Error as e:
-                traceback.print_exc()
-                print("Error %d: %s" % (e.args[0],e.args[1]))
-                con.rollback()
-                #sys.exit(1)
+        cur = con.cursor()
+        now = datetime.datetime.now()
+        before = now - timeDelta
+        before = before.strftime('%Y-%m-%d %H:%M:%S')
+        query = "SELECT SunlightVisible, SunlightUVIndex, TimeStamp FROM `WeatherData` WHERE (TimeStamp > '%s') ORDER BY id ASC" % (
+            before)
+        # print("query=", query)
+        cur.execute(query)
+        con.commit()
+        records = cur.fetchall()
+        # print ("Query records=", records)
+        return records
+    except mdb.Error as e:
+        traceback.print_exc()
+        print("Error %d: %s" % (e.args[0], e.args[1]))
+        con.rollback()
+        # sys.exit(1)
 
-        finally:
-                cur.close()
-                con.close()
+    finally:
+        cur.close()
+        con.close()
 
 
 def buildSunlightUVIndexGraphFigure():
@@ -660,28 +671,27 @@ def buildSunlightUVIndexGraphFigure():
             title_text='No Weather Data Available')
         return fig
 
-
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
     # Add traces
     fig.add_trace(
         go.Scatter(x=Time, y=Sunlight, name="Sunlight",
-        line = dict(
-                    color = ('red'),
-                    width = 2,
-                    ),
-       ),
-       secondary_y = False
+                   line=dict(
+                       color=('red'),
+                       width=2,
+                   ),
+                   ),
+        secondary_y=False
     )
 
     fig.add_trace(
-        go.Scatter(x=Time, y=UVIndex, name="UV Index", 
-        line = dict(
-                    color = ('blue'),
-                    width = 2,
-                    ),
-        ),
-       secondary_y = True
+        go.Scatter(x=Time, y=UVIndex, name="UV Index",
+                   line=dict(
+                       color=('blue'),
+                       width=2,
+                   ),
+                   ),
+        secondary_y=True
     )
 
     # Add figure title
@@ -691,28 +701,26 @@ def buildSunlightUVIndexGraphFigure():
 
     # Set x-axis title
     fig.update_xaxes(title_text="Time")
-    
+
     # Set y-axes titles
     fig.update_yaxes(title_text="<b>Sunlight (Lux)</b>", secondary_y=False)
-    fig.update_yaxes(title_text="<b>UV Index </b>", secondary_y=True, range= (0,10))
-    
+    fig.update_yaxes(title_text="<b>UV Index </b>", secondary_y=True, range=(0, 10))
+
     return fig
 
 
 def buildSunlight_UVIndex_Graph():
-
-
     fig = buildSunlightUVIndexGraphFigure()
 
-    graph =  dcc.Graph(
-                    id = {'type' : 'WPGdynamic', 'index': 'graph-suv' },
-                    figure=fig,
-                    animate = False
-                    )
+    graph = dcc.Graph(
+        id={'type': 'WPGdynamic', 'index': 'graph-suv'},
+        figure=fig,
+        animate=False
+    )
     return graph
 
-################################
 
+################################
 
 
 ################
@@ -726,193 +734,200 @@ def WeatherPage():
     CWJSON = generateCurrentWeatherJSON()
     print("WP-CWSJON=", CWJSON)
     Row1 = html.Div(
-        [ 
-        #dbc.Row( dbc.Col(html.Div(id="Weather Instruments"))),
-        dbc.Row( dbc.Col(html.Div(html.H6(id={'type' : 'WPdynamic', 'index': "StringTime"},children="Weather Instruments")))),
-            
-            dbc.Row(
-                [ 
-                    dbc.Col(html.Div(
-                     [
+        [
+            # dbc.Row( dbc.Col(html.Div(id="Weather Instruments"))),
+            dbc.Row(dbc.Col(
+                html.Div(html.H6(id={'type': 'WPdynamic', 'index': "StringTime"}, children="Weather Instruments")))),
 
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "OutdoorTemperature"},
-                            children=str(CWJSON["OutdoorTemperature"])+TUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                            #children=str(round(CTUnits(CWJSON["OutdoorTemperature"]),1))+TUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Outdoor Temperature", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "OutdoorHumidity"},
-                            children=str(round(CWJSON["OutdoorHumidity"],1))+" %", style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Outdoor Humidity", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "IndoorTemperature"},
-                            children=str(CWJSON["IndoorTemperature"])+TUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Indoor Temperature", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "IndoorHumidity"},
-                            children=str(round(CWJSON["IndoorHumidity"],1))+" %", style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Indoor Humidity", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "SunlightVisible"},
-                            children=str(round(CWJSON["SunlightVisible"]))+" lux", style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Sunlight", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     ],
-                     ),
-                     width=3,
+            dbc.Row(
+                [
+                    dbc.Col(html.Div(
+                        [
+
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "OutdoorTemperature"},
+                                         children=str(CWJSON["OutdoorTemperature"]) + TUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 # children=str(round(CTUnits(CWJSON["OutdoorTemperature"]),1))+TUnits(), style={"font-size": maintextsize,"color":maintextcolor}),
+                                 html.P("Outdoor Temperature", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "OutdoorHumidity"},
+                                         children=str(round(CWJSON["OutdoorHumidity"], 1)) + " %",
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Outdoor Humidity", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "IndoorTemperature"},
+                                         children=str(CWJSON["IndoorTemperature"]) + TUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Indoor Temperature", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "IndoorHumidity"},
+                                         children=str(round(CWJSON["IndoorHumidity"], 1)) + " %",
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Indoor Humidity", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "SunlightVisible"},
+                                         children=str(round(CWJSON["SunlightVisible"])) + " lux",
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Sunlight", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                        ],
                     ),
-                     dbc.Col(html.Div(
-                     [
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "BarometricPressureSeaLevel"},
-                            children=str(CWJSON["BarometricPressureSeaLevel"])+BUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Barometric Pressure", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "WindSpeed"},
-                            children=str(CWJSON["WindSpeed"])+WUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Wind Speed", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "WindGust"},
-                            children=str(CWJSON["WindGust"])+WUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Wind Gust", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "WindDirection"},
-                            children=str(CWJSON["WindDirection"])+" deg", style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Wind Direction", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "SunlightUVIndex"},
-                            children=str(round(CWJSON["SunlightUVIndex"],1)), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Sunlight UV Index", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                        
-                     ],
-                     ),
-                     width=3,
+                        width=3,
                     ),
-		            dbc.Col(html.Div(buildCompassRose())),
-      
-	            ],
+                    dbc.Col(html.Div(
+                        [
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "BarometricPressureSeaLevel"},
+                                         children=str(CWJSON["BarometricPressureSeaLevel"]) + BUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Barometric Pressure", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "WindSpeed"},
+                                         children=str(CWJSON["WindSpeed"]) + WUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Wind Speed", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "WindGust"},
+                                         children=str(CWJSON["WindGust"]) + WUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Wind Gust", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "WindDirection"},
+                                         children=str(CWJSON["WindDirection"]) + " °",
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Wind Direction", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "SunlightUVIndex"},
+                                         children=str(round(CWJSON["SunlightUVIndex"], 1)),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Sunlight UV Index", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+
+                        ],
+                    ),
+                        width=3,
+                    ),
+                    dbc.Col(html.Div(buildCompassRose())),
+
+                ],
             ),
         ]
-	    )
+    )
 
     Row2 = html.Div(
         [
-        dbc.Row(
-            [
-                dbc.Col(html.Div("Rain / Air Quality")),
-            ]
-        ),
-	    dbc.Row(
-	    [
-                     dbc.Col(html.Div(
-                     [
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "TotalRain"},
-                            children=str(CWJSON["TotalRain"])+RUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                            
-                         html.P("Total Rain", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "CalendarDayRain"},
-                            children=str(CWJSON["CalendarDayRain"])+RUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Daily Rain", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "CalendarMonthRain"},
-                            children=str(CWJSON["CalendarMonthRain"])+RUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                            
-                         html.P("Calendar Month", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
+            dbc.Row(
+                [
+                    dbc.Col(html.Div("Rain / Air Quality")),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(html.Div(
+                        [
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "TotalRain"},
+                                         children=str(CWJSON["TotalRain"]) + RUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
 
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "30DayRain"},
-                            children=str(CWJSON["30DayRain"])+RUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                            
-                         html.P("Last 30 Days", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                    ],
-                     ),
-                     width=3,
-                     ),
-                     dbc.Col(html.Div(
-                     [
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "24HourRain"},
-                            children=str(CWJSON["24HourRain"])+RUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                            
-                         html.P("Last 24 Hours", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "7DaysRain"},
-                            children=str(CWJSON["7DaysRain"])+RUnits(), style={"font-size": maintextsize,"color":maintextcolor}), 
-                            
-                         html.P("Last 7 Days", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "AQI"},
-                            children=str(CWJSON["AQI"]), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("Current AQI", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
+                                 html.P("Total Rain", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "CalendarDayRain"},
+                                         children=str(CWJSON["CalendarDayRain"]) + RUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Daily Rain", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "CalendarMonthRain"},
+                                         children=str(CWJSON["CalendarMonthRain"]) + RUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
 
-                     html.Div(
-                         [html.H1(id={'type' : 'WPdynamic', 'index' : "AQI24Average"},
-                            children=str(CWJSON["AQI24Average"]), style={"font-size": maintextsize,"color":maintextcolor}), 
-                         html.P("24 Hour AQI Average", style={"color":subtextcolor})
-                         ], id="ot1", className="mini_container",),
-                    ]
+                                 html.P("Calendar Month", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "30DayRain"},
+                                         children=str(CWJSON["30DayRain"]) + RUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+
+                                 html.P("Last 30 Days", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                        ],
                     ),
-                     width=3,
+                        width=3,
                     ),
-            ],
-                   ),
+                    dbc.Col(html.Div(
+                        [
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "24HourRain"},
+                                         children=str(CWJSON["24HourRain"]) + RUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
 
+                                 html.P("Last 24 Hours", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "7DaysRain"},
+                                         children=str(CWJSON["7DaysRain"]) + RUnits(),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+
+                                 html.P("Last 7 Days", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "AQI"},
+                                         children=str(CWJSON["AQI"]),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("Current AQI", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+
+                            html.Div(
+                                [html.H1(id={'type': 'WPdynamic', 'index': "AQI24Average"},
+                                         children=str(CWJSON["AQI24Average"]),
+                                         style={"font-size": maintextsize, "color": maintextcolor}),
+                                 html.P("24 Hour AQI Average", style={"color": subtextcolor})
+                                 ], id="ot1", className="mini_container", ),
+                        ]
+                    ),
+                        width=3,
+                    ),
+                ],
+            ),
 
         ]
     )
 
-
-# graphs
+    # graphs
     Row3 = html.Div(
-    [
+        [
             dbc.Row(
-            [
-                dbc.Col(
                 [
-                    buildOutdoorTemperature_Humidity_Graph(),
-                    buildSunlight_UVIndex_Graph(),
-                ],
-                width = 12,
-                )
-            ]
+                    dbc.Col(
+                        [
+                            buildOutdoorTemperature_Humidity_Graph(),
+                            buildSunlight_UVIndex_Graph(),
+                        ],
+                        width=12,
+                    )
+                ]
             ),
-   ]
-   )
+        ]
+    )
 
-
-
-#########
-# combined layout
-#########
-
+    #########
+    # combined layout
+    #########
 
     layout = dbc.Container([
-        Row1, Row2, Row3 ],
+        Row1, Row2, Row3],
         className="p-5",
     )
     return layout
-
-
-
-
-
-
-

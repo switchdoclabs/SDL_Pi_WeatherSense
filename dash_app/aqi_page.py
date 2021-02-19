@@ -1,5 +1,5 @@
-import os
-import dash
+import os, sys
+# import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
@@ -7,14 +7,20 @@ import MySQLdb as mdb
 import datetime
 
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, MATCH, ALL, State
+# from dash.dependencies import Input, Output, MATCH, ALL, State
 
-
-
+# build the path to import config.py from the parent directory
+sys.path.append('../')
+import config
 
 
 def build_graphAQI_figure():
-    con = mdb.connect('localhost', 'root', 'password', 'WeatherSenseWireless');
+    con = mdb.connect(
+        config.MySQL_Host,
+        config.MySQL_User,
+        config.MySQL_Password,
+        config.MySQL_Schema
+    )
     #last 7 days 
     timeDelta = datetime.timedelta(days=7)
     now = datetime.datetime.now()
@@ -37,8 +43,15 @@ def build_graphAQI_figure():
 
     return figure
 
+
 def build_graph1_figure():
-    con = mdb.connect('localhost', 'root', 'password', 'WeatherSenseWireless');
+    con = mdb.connect(
+        config.MySQL_Host,
+        config.MySQL_User,
+        config.MySQL_Password,
+        config.MySQL_Schema
+    )
+
     #last 7 days 
     timeDelta = datetime.timedelta(days=7)
     now = datetime.datetime.now()
@@ -48,7 +61,7 @@ def build_graph1_figure():
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
     query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM AQI433MHZ WHERE (TimeStamp > '%s') AND (deviceid = '1') ORDER BY timestamp"% (before) 
-    #print("query=", query)
+    # print("query=", query)
     df = pd.read_sql(query, con )
 
 
@@ -65,8 +78,15 @@ def build_graph1_figure():
 
     return figure
 
+
 def build_graph2_figure():
-    con = mdb.connect('localhost', 'root', 'password', 'WeatherSenseWireless');
+    con = mdb.connect(
+        config.MySQL_Host,
+        config.MySQL_User,
+        config.MySQL_Password,
+        config.MySQL_Schema
+    )
+
     #last 7 days 
     timeDelta = datetime.timedelta(days=7)
     now = datetime.datetime.now()
@@ -95,10 +115,10 @@ def AQIPage():
     layout = html.Div(children=[
 
     html.H1("AQI Charts", style={'textAlign': 'center'}),
-    
+
     dcc.Graph(
-    id={'type' : 'AQIgraph', 'index' : "1"},
-    figure = build_graphAQI_figure(),
+        id={'type': 'AQIgraph', 'index': "1"},
+        figure=build_graphAQI_figure(),
     ),
 
     dcc.Graph(
@@ -113,4 +133,5 @@ def AQIPage():
 
     ], className="container" )
 
+    # con.close()
     return layout

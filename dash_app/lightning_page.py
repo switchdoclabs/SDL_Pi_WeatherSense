@@ -1,5 +1,6 @@
-import os
-import dash
+# import os
+import sys
+# import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -8,7 +9,11 @@ import MySQLdb as mdb
 import datetime
 
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, MATCH, ALL, State
+# from dash.dependencies import Input, Output, MATCH, ALL, State
+
+sys.path.append("../")
+
+import config
 
 LLJSON={}
 LLJSON["LastLightning"]= "N/A"
@@ -22,7 +27,13 @@ LLJSON["LastMessageID"]= "N/A"
 
 def updateLightningLines():
 
-    con = mdb.connect('localhost', 'root', 'password', 'WeatherSenseWireless');
+    con = mdb.connect(
+        config.MySQL_Host,
+        config.MySQL_User,
+        config.MySQL_Password,
+        config.MySQL_Schema
+    )
+
     cur = con.cursor()
     # build the data array
 
@@ -109,8 +120,14 @@ def updateLightningLines():
 
 
 def build_graphLightning_figure():
-    con = mdb.connect('localhost', 'root', 'password', 'WeatherSenseWireless');
-    #last 7 days 
+    con = mdb.connect(
+        config.MySQL_Host,
+        config.MySQL_User,
+        config.MySQL_Password,
+        config.MySQL_Schema
+    )
+
+    #last 7 days
     timeDelta = datetime.timedelta(days=7)
     now = datetime.datetime.now()
     before = now - timeDelta
@@ -141,8 +158,14 @@ def build_graphLightning_figure():
     return figure
 
 def build_graph1_figure():
-    con = mdb.connect('localhost', 'root', 'password', 'WeatherSenseWireless');
-    #last 7 days 
+    con = mdb.connect(
+        config.MySQL_Host,
+        config.MySQL_User,
+        config.MySQL_Password,
+        config.MySQL_Schema
+    )
+
+    #last 7 days
     timeDelta = datetime.timedelta(days=7)
     now = datetime.datetime.now()
     before = now - timeDelta
@@ -169,8 +192,14 @@ def build_graph1_figure():
     return figure
 
 def build_graph2_figure():
-    con = mdb.connect('localhost', 'root', 'password', 'WeatherSenseWireless');
-    #last 7 days 
+    con = mdb.connect(
+        config.MySQL_Host,
+        config.MySQL_User,
+        config.MySQL_Password,
+        config.MySQL_Schema
+    )
+
+    #last 7 days
     timeDelta = datetime.timedelta(days=7)
     now = datetime.datetime.now()
     before = now - timeDelta
