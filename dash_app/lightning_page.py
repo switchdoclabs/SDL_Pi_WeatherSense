@@ -14,6 +14,7 @@ import plotly.graph_objs as go
 sys.path.append("../")
 
 import config
+WSLGHTID = 1
 
 LLJSON={}
 LLJSON["LastLightning"]= "N/A"
@@ -45,7 +46,7 @@ def updateLightningLines():
     
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    query = "SELECT timestamp, lightningcount from TB433MHZ WHERE (irqsource = 8) ORDER BY timestamp DESC LIMIT 1 "
+    query = "SELECT timestamp, lightningcount, deviceid from TB433MHZ WHERE (irqsource = 8) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1 " % WSLGHTID
     print("queryA=", query)
     cur.execute(query)
     records = cur.fetchall()
@@ -56,7 +57,7 @@ def updateLightningLines():
          
 
 
-    query = "SELECT timestamp, lightninglastdistance, irqsource from TB433MHZ WHERE (timestamp > '%s') and (irqsource=8) ORDER BY timestamp DESC LIMIT 1" % before
+    query = "SELECT timestamp, deviceid, lightninglastdistance, irqsource from TB433MHZ WHERE (timestamp > '%s') and (irqsource=8) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1" % (before, WSLGHTID)
     cur.execute(query)
     print("queryD=", query)
     records = cur.fetchall()
@@ -68,7 +69,7 @@ def updateLightningLines():
 
 
 
-    query = "SELECT timestamp, lightningcount from TB433MHZ WHERE (timestamp > '%s') AND (irqsource = 8)" % before
+    query = "SELECT timestamp, deviceid, lightningcount from TB433MHZ WHERE (timestamp > '%s') AND (irqsource = 8) and (deviceid = %d)" % (before, WSLGHTID)
     cur.execute(query)
     records = cur.fetchall()
          
@@ -76,7 +77,7 @@ def updateLightningLines():
 
 
 
-    query = "SELECT timestamp, lightningcount from TB433MHZ WHERE (timestamp > '%s') ORDER BY timestamp DESC LIMIT 1" % before
+    query = "SELECT timestamp, deviceid, lightningcount from TB433MHZ WHERE (timestamp > '%s') AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1" % (before, WSLGHTID)
     cur.execute(query)
     records = cur.fetchall()
 
@@ -95,13 +96,13 @@ def updateLightningLines():
     LLJSON["DisturberCount"] = str(count)
 
 
-    query = "SELECT timestamp, irqsource from TB433MHZ WHERE (timestamp > '%s') AND (irqsource = 1)" % before
+    query = "SELECT timestamp, irqsource, deviceid from TB433MHZ WHERE (timestamp > '%s') AND (irqsource = 1) AND deviceid = %d" % (before, WSLGHTID)
     cur.execute(query)
     records = cur.fetchall()
     count = len(records)
     LLJSON["NoiseCount"] = str(count)
 
-    query = "SELECT timestamp, deviceid from TB433MHZ ORDER BY timestamp DESC LIMIT 1" 
+    query = "SELECT timestamp, deviceid from TB433MHZ WHERE deviceid = %d ORDER BY timestamp DESC LIMIT 1" % WSLGHTID
     cur.execute(query)
     records = cur.fetchall()
     if (len(records) > 0):
@@ -110,7 +111,7 @@ def updateLightningLines():
         LLJSON["UnitID"]= "N/A"
 
 
-    query = "SELECT timestamp, messageID from TB433MHZ ORDER BY timestamp DESC LIMIT 1" 
+    query = "SELECT timestamp, messageID, deviceid from TB433MHZ WHERE deviceid = %d ORDER BY timestamp DESC LIMIT 1"  % WSLGHTID
     cur.execute(query)
     records = cur.fetchall()
     if (len(records) > 0):
@@ -136,11 +137,11 @@ def build_graphLightning_figure():
     
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
-    query = "SELECT timestamp, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 8) ORDER BY timestamp"% (before) 
+    query = "SELECT timestamp,deviceid, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 8) AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
     df = pd.read_sql(query, con )
     df['present'] = pd.Series([0 for x in range(len(df.index))]) 
 
-    query = "SELECT timestamp, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 4) ORDER BY timestamp"% (before) 
+    query = "SELECT timestamp, deviceid, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 4) AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
     df2 = pd.read_sql(query, con )
     df2['present'] = pd.Series([0 for x in range(len(df2.index))]) 
 
@@ -173,7 +174,7 @@ def build_graph1_figure():
     
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
-    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM TB433MHZ WHERE (TimeStamp > '%s') AND (deviceid = '1') ORDER BY timestamp"% (before) 
+    query = "SELECT timestamp, deviceid, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM TB433MHZ WHERE (TimeStamp > '%s') AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
     #print("query=", query)
     df = pd.read_sql(query, con )
 
@@ -207,7 +208,7 @@ def build_graph2_figure():
 
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
-    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM TB433MHZ WHERE (TimeStamp > '%s') AND (deviceid = '1') ORDER BY timestamp"% (before) 
+    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa, deviceid FROM TB433MHZ WHERE (TimeStamp > '%s') AND (deviceid = %d) ORDER BY timestamp"% (before,WSLGHTID) 
     df = pd.read_sql(query, con )
     trace1c = go.Scatter(x=df.timestamp, y=df.batterycurrent, name='battery current')
     trace2c = go.Scatter(x=df.timestamp, y=df.solarcurrent, name='solar current')

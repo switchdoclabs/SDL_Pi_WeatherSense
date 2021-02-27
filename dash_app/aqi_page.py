@@ -9,6 +9,7 @@ import datetime
 import plotly.graph_objs as go
 # from dash.dependencies import Input, Output, MATCH, ALL, State
 
+WSAQIID = 1
 # build the path to import config.py from the parent directory
 sys.path.append('../')
 import config
@@ -60,7 +61,7 @@ def build_graph1_figure():
     
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
-    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM AQI433MHZ WHERE (TimeStamp > '%s') AND (deviceid = '1') ORDER BY timestamp"% (before) 
+    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM AQI433MHZ WHERE (TimeStamp > '%s') AND (deviceid = %d) ORDER BY timestamp"% (before,WSAQIID) 
     # print("query=", query)
     df = pd.read_sql(query, con )
 
@@ -95,7 +96,7 @@ def build_graph2_figure():
 
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
-    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM AQI433MHZ WHERE (TimeStamp > '%s') AND (deviceid = '1') ORDER BY timestamp"% (before) 
+    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM AQI433MHZ WHERE (TimeStamp > '%s') AND (deviceid = %d) ORDER BY timestamp"% (before, WSAQIID) 
     df = pd.read_sql(query, con )
     trace1c = go.Scatter(x=df.timestamp, y=df.batterycurrent, name='battery current')
     trace2c = go.Scatter(x=df.timestamp, y=df.solarcurrent, name='solar current')

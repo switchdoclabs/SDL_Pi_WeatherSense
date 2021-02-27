@@ -233,8 +233,8 @@ def processF016TH(sLine, ReadingCountArray):
     # ReadingCountArray[var["channel"]] = ReadingCountArray[var["channel"]] + 1
     ReadingCountArray[chan_array_pos] += 1
 
-    # IndoorTemperature = round(((var["temperature_F"] - 32.0) / (9.0 / 5.0)), 2)
-    IndoorTemperature = var["temperature_F"]
+    IndoorTemperature = round(((var["temperature_F"] - 32.0) / (9.0 / 5.0)), 2)
+    #IndoorTemperature = var["temperature_F"]
 
     if (config.enable_MySQL_Logging == True):
         # open mysql database
@@ -277,6 +277,10 @@ def processF016TH(sLine, ReadingCountArray):
 
 # processes Generic Packets 
 def processWeatherSenseGeneric(sLine):
+    if (config.SWDEBUG):
+        sys.stdout.write("processing Generic Data\n")
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
+
     if (config.enable_MQTT == True):
         mqtt_publish_single(sLine, "Generic")
 
@@ -287,6 +291,9 @@ def processWeatherSenseTB(sLine):
     # weathersense protocol 16
     state = json.loads(sLine)
     myProtocol = state['weathersenseprotocol']
+    if (config.SWDEBUG):
+        sys.stdout.write("processing Lightning TB Data\n")
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
 
     if (config.enable_MQTT == True):
         mqtt_publish_single(sLine, "WSLightning")
@@ -345,6 +352,9 @@ def processWeatherSenseAQI(sLine):
     # weathersense protocol 15
     state = json.loads(sLine)
     myProtocol = state['weathersenseprotocol']
+    if (config.SWDEBUG):
+        sys.stdout.write("processing AQI Data\n")
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
 
     if (config.enable_MQTT == True):
         mqtt_publish_single(sLine, "WSAQI")
@@ -417,6 +427,9 @@ def processWeatherSenseAQI(sLine):
 
 def processSolarMAX(sLine):
     state = json.loads(sLine)
+    if (config.SWDEBUG):
+        sys.stdout.write("processing SolarMAX Data\n")
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
 
     # only accept SolarMAX Protocols (8,10,11)
     myProtocol = state['weathersenseprotocol']

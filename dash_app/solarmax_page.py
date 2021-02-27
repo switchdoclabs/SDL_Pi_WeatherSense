@@ -17,6 +17,8 @@ import config
 
 # SolarMAX currents
 
+#display which SolarMAX ID
+SolarMAXID = 1
 
 def build_graph1_figure():
     con = mdb.connect(
@@ -34,8 +36,8 @@ def build_graph1_figure():
 
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM SolarMax433MHZ WHERE (TimeStamp > '%s') AND (deviceid = '2') ORDER BY timestamp" % (
-        before)
+    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM SolarMax433MHZ WHERE (TimeStamp > '%s') AND (deviceid = %d ) ORDER BY timestamp" % (
+         before, SolarMAXID)
     # print("query=", query)
     df = pd.read_sql(query, con)
 
@@ -47,7 +49,7 @@ def build_graph1_figure():
     figure = {
         'data': [trace1, trace2, trace3, trace4],
         'layout':
-            go.Layout(title='SolarMAX Solar Voltages', xaxis_title="Updated at: " + nowTime)}
+            go.Layout(title='SolarMAX Solar Voltages', xaxis_title="ID=%d Updated at: "%SolarMAXID + nowTime)}
     con.close()
 
     return figure
@@ -69,8 +71,8 @@ def build_graph2_figure():
 
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM SolarMax433MHZ WHERE (TimeStamp > '%s') AND (deviceid = '2') ORDER BY timestamp" % (
-        before)
+    query = "SELECT timestamp, solarvoltage, batteryvoltage, loadvoltage, batterycurrent, solarcurrent, loadcurrent, auxa FROM SolarMax433MHZ WHERE (TimeStamp > '%s') AND (deviceid = %d) ORDER BY timestamp" % (
+        before, SolarMAXID)
     df = pd.read_sql(query, con)
     trace1c = go.Scatter(x=df.timestamp, y=df.batterycurrent, name='battery current')
     trace2c = go.Scatter(x=df.timestamp, y=df.solarcurrent, name='solar current')
@@ -78,7 +80,7 @@ def build_graph2_figure():
     figure = {
         'data': [trace1c, trace2c, trace3c],
         'layout':
-            go.Layout(title='SolarMAX Solar Currents', xaxis_title="Updated at: " + nowTime)}
+            go.Layout(title='SolarMAX Solar Currents', xaxis_title="ID=%d Updated at: "%SolarMAXID + nowTime)}
 
     con.close()
 

@@ -15,7 +15,7 @@ import uuid
 enable_MySQL_Logging = True
 MySQL_Host = "localhost"
 MySQL_User = "root"
-MySQL_Password = "YOUR-PASSWORD"
+MySQL_Password = "password"
 MySQL_Schema = "WeatherSenseWireless"
 
 # 0 is English, 1 is metric
@@ -23,7 +23,7 @@ English_Metric = 0
 
 # configuration for MQTT
 
-enable_MQTT = False
+enable_MQTT = True
 MQTThost = "localhost"
 MQTTport = 1883
 MQTTqos = 0
