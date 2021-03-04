@@ -59,5 +59,23 @@ cd SDL_Pi_WeatherSenseWireless
 sudo python3 WeatherSenseMonitor.py
 
 </pre>
+and in a different windwow
+
+<pre>
+cd SDL_Pi_WeatherSenseWireless
+cd dash_app
+sudo python3 index.py 
+</pre>
 
 
+Then you can access the web pages on your Pi by:
+
+http://localhost:8050/
+
+Or on any computer in your local network:
+
+http://<your IP Number>:8050/
+
+Use "hostname -I" to your your Raspberry Pi IP Number.
+
+Example:  http://192.168.1.32:8050/
