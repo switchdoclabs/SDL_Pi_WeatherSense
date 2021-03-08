@@ -19,7 +19,8 @@ Supporting in the future:<BR>
 - WeatherSense Camera <BR>
 
 
-Version 1.0 February 2021
+Version 1.1 March 2021 - Added Power calculations <BR>
+Version 1.0 February 2021<BR>
 
 
 

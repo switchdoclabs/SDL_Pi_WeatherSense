@@ -315,9 +315,9 @@ def processWeatherSenseTB(sLine):
             )
 
             cur = con.cursor()
-            batteryPower = 0.0
-            loadPower = 0.0
-            solarPower = 0.0
+            batteryPower =  float(state["batterycurrent"])* float(state["batteryvoltage"])
+            loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
+            solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
             batteryCharge = 0.0
 
             fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol,irqsource, previousinterruptresult, lightninglastdistance, sparebyte, lightningcount, interruptcount,  batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
@@ -376,9 +376,9 @@ def processWeatherSenseAQI(sLine):
             )
 
             cur = con.cursor()
-            batteryPower = 0.0
-            loadPower = 0.0
-            solarPower = 0.0
+            batteryPower =  float(state["batterycurrent"])* float(state["batteryvoltage"])
+            loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
+            solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
             batteryCharge = 0.0
             # calculate AQI 24 Hour
             timeDelta = datetime.timedelta(days=1)
@@ -455,9 +455,9 @@ def processSolarMAX(sLine):
                 )
 
                 cur = con.cursor()
-                batteryPower = 0.0
-                loadPower = 0.0
-                solarPower = 0.0
+                batteryPower =  float(state["batterycurrent"])* float(state["batteryvoltage"])
+                loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
+                solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
                 batteryCharge = 0.0
 
                 fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, internaltemperature,internalhumidity, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
