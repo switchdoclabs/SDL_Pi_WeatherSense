@@ -4,8 +4,9 @@ Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments a
 
 And publishes to MQTT topic "weathersense/#"
 
-config.py contains all the support information
+Version V002 March 2021 - Added Power calculations <BR>
 
+config.py contains all the support information<BR>
 Supports:<BR>
 
 - WeatherSense WeatherRack2<BR>
@@ -19,8 +20,7 @@ Supporting in the future:<BR>
 - WeatherSense Camera <BR>
 
 
-Version 1.1 March 2021 - Added Power calculations <BR>
-Version 1.0 February 2021<BR>
+Version V001 February 2021<BR>
 
 As always, we recommend using the 32GB SDL SDCard with all the software installed.<BR>
 

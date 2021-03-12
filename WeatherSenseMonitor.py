@@ -2,7 +2,7 @@ from __future__ import print_function
 # import state
 # import sys
 # from datetime import datetime
-
+SOFTWAREVERSION = "V003"
 import wirelessSensors
 
 import time
@@ -14,6 +14,11 @@ try:
     import conflocal as config
 except ImportError:
     import config
+
+print("-----------------")
+print("WeatherSense Monitoring Software")
+print("Software Version ", SOFTWAREVERSION)
+print("-----------------")
 
 
 ##########
