@@ -26,6 +26,7 @@ from navbar import Navbar, Logo
 import solarmax_page
 import weather_page
 import indoorth
+import aftershock_page
 import aqi_page
 import lightning_page
 
@@ -119,7 +120,8 @@ def display_page(pathname):
     #    raise PreventUpdate
     previousPathname = pathname
 
-    myLayout = NotImplPage()
+    #myLayout = NotImplPage()
+    myLayout = aqi_page.AQIPage() 
     myLayout2 = ""
     if pathname == '/weather_page':
         myLayout = weather_page.WeatherPage()
@@ -131,6 +133,9 @@ def display_page(pathname):
         myLayout2 = ""
     if pathname == '/aqi_page':
         myLayout = aqi_page.AQIPage()
+        myLayout2 = ""
+    if pathname == '/aftershock_page':
+        myLayout = aftershock_page.AfterShockPage()
         myLayout2 = ""
     if pathname == '/lightning_page':
         myLayout = lightning_page.LightningPage()
@@ -157,6 +162,68 @@ def display_page(pathname):
 ############
 # callbacks
 ############
+# aftershock_page callbacks
+
+
+@app.callback(
+    [
+        Output({'type': 'AfterShockgraph', 'index': MATCH}, 'figure'),
+    ],
+    [Input('minute-interval-component', 'n_intervals'),
+     Input({'type': 'AfterShockgraph', 'index': MATCH}, 'id')],
+    [State({'type': 'AfterShockgraph', 'index': MATCH}, 'value')]
+)
+def update_metrics(n_intervals, id, value):
+    print("n_intervals=", n_intervals)
+    myIndex = id['index']
+    # build figures
+    if (myIndex == '1'):
+        print("GraphAfterShock figure")
+        figure = aftershock_page.build_graphAfterShock_figure()
+    if (myIndex == '2'):
+        print("GraphAfterShock Solar Currents")
+        figure = aftershock_page.build_graph1_figure()
+    if (myIndex == '3'):
+        print("GraphAfterShock Solar Voltages")
+        figure = aftershock_page.build_graph2_figure()
+
+    return [figure]
+
+
+@app.callback(
+    [
+        Output({'type': 'ASdynamic', 'index': MATCH}, 'children'),
+    ],
+    [Input('main-interval-component', 'n_intervals'),
+     Input({'type': 'ASdynamic', 'index': MATCH}, 'id')],
+    [State({'type': 'ASdynamic', 'index': MATCH}, 'value')]
+)
+def updateAfterShockUpdate(n_intervals, id, value):
+    if (True):
+        # if ((n_intervals % (1*2)) == 0) or (n_intervals ==0): # 5 minutes -10 second timer
+
+        # if ((n_intervals % (5*6)) == 0) or (n_intervals ==0): # 5 minutes -10 second timer
+        print("--->>>updateAfterShockUpdate", datetime.datetime.now(), n_intervals)
+        print("updateAfterShockUpdate n_intervals =", n_intervals, id['index'])
+        if (id['index'] == "StringTime"):
+            # weather_page.CWJSON = weather_page.generateCurrentWeatherJSON()
+            # value = str(weather_page.CWJSON[id['index']]) +" "+ weather_page.CWJSON[id['index']+'Units']
+            now = datetime.datetime.now()
+            nowString = now.strftime('%Y-%m-%d %H:%M:%S')
+            value = "AfterShock Updated at:" + nowString
+            aftershock_page.updateAfterShockLines()
+
+            return [value]
+
+        value = aftershock_page.ASJSON[id['index']]
+    else:
+        raise PreventUpdate
+    return [value]
+
+
+
+
+
 # lightning_page callbacks
 
 

@@ -4,8 +4,16 @@ Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments a
 
 And publishes to MQTT topic "weathersense/#"
 
-Version V002 March 2021 - Added Power calculations <BR>
+Version V003 April 2021 - Added AfterShock Support.  Fixed timestamps<BR>
 
+if you are updating from an older database version do the following:
+<pre>
+sudo mysql -u root -p WeatherSenseWireless < updateWeatherSenseWireless.sql
+</pre>
+
+
+
+--------------------<BR>
 config.py contains all the support information<BR>
 Supports:<BR>
 
@@ -14,12 +22,15 @@ Supports:<BR>
 - WeatherSense Lightning Detector<BR>
 - WeatherSense Air Quality Index<BR>
 - SolarMAX Solar Panel System<BR>
+- AfterShock Earthquake Detector System<BR>
 
 Supporting in the future:<BR>
 - WeatherSense Generic <BR>
 - WeatherSense Camera <BR>
 
+Previous Versions:
 
+Version V002 March 2021 - Added Power calculations <BR
 Version V001 February 2021<BR>
 
 As always, we recommend using the 32GB SDL SDCard with all the software installed.<BR>
