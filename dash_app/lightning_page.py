@@ -140,22 +140,34 @@ def build_graphLightning_figure():
     query = "SELECT timestamp,deviceid, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 8) AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
     df = pd.read_sql(query, con )
     df['present'] = pd.Series([0 for x in range(len(df.index))]) 
-
     query = "SELECT timestamp, deviceid, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 4) AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
     df2 = pd.read_sql(query, con )
     df2['present'] = pd.Series([0 for x in range(len(df2.index))]) 
 
+    query = "SELECT timestamp, deviceid, interruptcount, lightningcount, irqsource, lightninglastdistance  FROM TB433MHZ WHERE (TimeStamp > '%s') AND (irqsource = 0) AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
+    df3 = pd.read_sql(query, con )
+    df3['present'] = pd.Series([0 for x in range(len(df3.index))]) 
+
     trace1 = go.Scatter(x=df.timestamp, y=df.lightninglastdistance, name='Lightning Distance', mode="markers", marker=dict(size=10, color="blue"))
+    #if (len(df.index) == 0):
+    #    trace1 = go.Scatter(x=df.timestamp, y=[], name='Lightning Distance', mode="markers", marker=dict(size=10, color="blue"))
+    
     trace2 = go.Scatter(x=df.timestamp, y=df.present, name='Lightning Stroke', mode="markers", marker=dict(size=15, color = "red" ))
 
-    trace3 = go.Scatter(x=df2.timestamp, y=df2.present, name='Disruptor', mode="markers", marker=dict(size=15, color = "black" ))
+    trace3 = go.Scatter(x=df2.timestamp, y=df2.present, name='Disruptor', mode="markers", marker=dict(size=15, color = "orange" ), showlegend=True)
+    trace4 = go.Scatter(x=df3.timestamp, y=df3.present, name='KeepAlive', mode="markers", marker=dict(size=10, color = "black" ))
 
     figure={
-    'data': [trace1, trace2, trace3 ],
+    'data': [trace1, trace2, trace3, trace4  ],
     'layout':
-    go.Layout(title='WeatherSense Lightning', xaxis_title="Updated at: "+nowTime) }
-    con.close()
+    go.Layout(title='WeatherSense Lightning', xaxis_title="Updated at: "+nowTime, 
+    yaxis_range=[0,30],
+    showlegend= True,
+    
+    ),
 
+    }
+    con.close()
     return figure
 
 def build_graph1_figure():
