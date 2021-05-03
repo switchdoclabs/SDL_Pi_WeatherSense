@@ -52,8 +52,10 @@ def updateAfterShockLines():
     records = cur.fetchall()
     if (len(records) > 0):
         ASJSON["LastEarthquake"] = records[0][0].strftime("%d-%b-%Y %H:%M:%S")
+        ASJSON["EQCount"] = records[0][1]
     else:
         ASJSON["LastEarthquake"]= "N/A" 
+        ASJSON["EQCount"] = "N/A"
          
 
 
