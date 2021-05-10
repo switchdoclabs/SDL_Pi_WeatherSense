@@ -38,7 +38,7 @@ def updateAfterShockLines():
     cur = con.cursor()
     # build the data array
 
-    timeDelta = datetime.timedelta(days=7)
+    timeDelta = datetime.timedelta(days=14)
     now = datetime.datetime.now()
     before = now - timeDelta
     before = before.strftime('%Y-%m-%d %H:%M:%S')
@@ -59,7 +59,7 @@ def updateAfterShockLines():
          
 
 
-    query = "SELECT timestamp, deviceid, finaleq_si, keepalivemessage from AS433MHZ WHERE (timestamp > '%s') and (keepalivemessage=0) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1" % (before, WSLGHTID)
+    query = "SELECT timestamp, deviceid, instanteq_si, keepalivemessage from AS433MHZ WHERE (timestamp > '%s') and (keepalivemessage=0) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1" % (before, WSLGHTID)
     cur.execute(query)
     print("queryD=", query)
     records = cur.fetchall()
@@ -69,7 +69,7 @@ def updateAfterShockLines():
         ASJSON["LastEQSI"]= "N/A"
 
 
-    query = "SELECT timestamp, deviceid, finaleq_pga, keepalivemessage from AS433MHZ WHERE (timestamp > '%s') and (keepalivemessage=0) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1" % (before, WSLGHTID)
+    query = "SELECT timestamp, deviceid, instanteq_pga, keepalivemessage from AS433MHZ WHERE (timestamp > '%s') and (keepalivemessage=0) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1" % (before, WSLGHTID)
     cur.execute(query)
     print("queryD=", query)
     records = cur.fetchall()
@@ -127,8 +127,8 @@ def build_graphAfterShock_figure():
         config.MySQL_Schema
     )
 
-    #last 7 days
-    timeDelta = datetime.timedelta(days=7)
+    #last 14 days
+    timeDelta = datetime.timedelta(days=14)
     now = datetime.datetime.now()
     before = now - timeDelta
     before = before.strftime('%Y-%m-%d %H:%M:%S')
@@ -136,7 +136,7 @@ def build_graphAfterShock_figure():
     
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
     
-    query = "SELECT timestamp,deviceid, eqcount, finaleq_si, finaleq_pga, keepalivemessage FROM AS433MHZ WHERE (timestamp > '%s') AND (keepalivemessage = 0) AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
+    query = "SELECT timestamp,deviceid, eqcount, instanteq_si, instanteq_pga, keepalivemessage FROM AS433MHZ WHERE (timestamp > '%s') AND (keepalivemessage = 0) AND (deviceid = %d) ORDER BY timestamp"% (before, WSLGHTID) 
     print("Query=", query)
     df = pd.read_sql(query, con )
     df['present'] = pd.Series([0 for x in range(len(df.index))]) 
@@ -145,7 +145,7 @@ def build_graphAfterShock_figure():
     df2 = pd.read_sql(query, con )
     df2['present'] = pd.Series([0 for x in range(len(df2.index))]) 
 
-    trace1 = go.Scatter(x=df.timestamp, y=df.finaleq_si, name='AfterShock SI Strength', mode="markers", marker=dict(size=10, color="blue"))
+    trace1 = go.Scatter(x=df.timestamp, y=df.instanteq_si, name='AfterShock SI Strength', mode="markers", marker=dict(size=10, color="blue"))
     trace2 = go.Scatter(x=df.timestamp, y=df.present, name='AfterShock Quake', mode="markers", marker=dict(size=20, color = "red" ))
 
     trace3 = go.Scatter(x=df2.timestamp, y=df2.present, name='KeepAlive', mode="markers", marker=dict(size=15, color = "black" ))
@@ -166,7 +166,7 @@ def build_graph1_figure():
         config.MySQL_Schema
     )
 
-    #last 7 days
+    #last 14 days
     timeDelta = datetime.timedelta(days=7)
     now = datetime.datetime.now()
     before = now - timeDelta
@@ -200,8 +200,8 @@ def build_graph2_figure():
         config.MySQL_Schema
     )
 
-    #last 7 days
-    timeDelta = datetime.timedelta(days=7)
+    #last 14 days
+    timeDelta = datetime.timedelta(days=14)
     now = datetime.datetime.now()
     before = now - timeDelta
     before = before.strftime('%Y-%m-%d %H:%M:%S')
@@ -292,7 +292,7 @@ def AfterShockPage():
 
     layout = html.Div(children=[
 
-    html.H1("AfterShock Charts (Last 7 Days)", style={'textAlign': 'center'}),
+    html.H1("AfterShock Charts (Last 14 Days)", style={'textAlign': 'center'}),
 
     dbc.Container([
         Row1, Row2, Row3 ],
