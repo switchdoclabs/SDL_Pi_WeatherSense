@@ -21,6 +21,12 @@ from non_impl import NotImplPage
 
 from navbar import Navbar, Logo
 
+import logging
+
+
+
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
 # pages
 
 import solarmax_page
