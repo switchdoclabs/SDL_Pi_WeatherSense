@@ -26,10 +26,9 @@ print(config.English_Metric)
 
 
 def CTUnits(temperature):
-    # Indoor T/H readings are in Fahrenheit
     # config.English_Metric = 0 - Fahrenheit units
     # config.English_Metric = 1 - Celsius units
-    if config.English_Metric:  # convert to metric units (Celsius)
+    if (config.English_Metric == False):  # convert to metric units (Celsius)
         temperature = (9.0 / 5.0 * temperature) + 32.0
     return temperature
 

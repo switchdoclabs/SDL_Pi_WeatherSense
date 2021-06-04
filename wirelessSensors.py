@@ -116,16 +116,16 @@ def processFT020T(sLine, lastFT020TTimeStamp, ReadingCount):
             sys.stdout.write("error--->>> Temperature reading from FT020T\n")
             sys.stdout.write('This is the raw temperature: ' + str(wTemp) + '\n')
         # put in previous temperature 
-        wtemp = OutdoorTemperature
+        wtemp = state.currentOutsideTemperature
         # print("wTemp=%s %s", (str(wTemp),nowStr() ));
     if (ucHumi > 100.0):
         # bad humidity
         # put in previous humidity
-        ucHumi = OutdoorHumidity
+        ucHumi = state.currentOutsideHumidity
 
-    # convert temperature reading to Celsius but why?
-    # OutdoorTemperature = round(((wTemp - 32.0) / (9.0 / 5.0)), 2)
-    OutdoorTemperature = round(wTemp, 2)
+    # convert temperature reading to Celsius
+    OutdoorTemperature = round(((wTemp - 32.0) / (9.0 / 5.0)), 2)
+    #OutdoorTemperature = round(wTemp, 2)
     OutdoorHumidity = ucHumi
 
     WindSpeed = round(var["avewindspeed"] / 10.0, 1)

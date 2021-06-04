@@ -386,6 +386,7 @@ def updateIndoorTHUpdate(n_intervals, id, value):
     [State({'type': 'WPdynamic', 'index': MATCH}, 'value')]
 )
 def updateWeatherUpdate(n_intervals, id, value):
+    #print("weather_page.CWJSON=", weather_page.CWJSON)
     if ((n_intervals % (1 * 6)) == 0) or (n_intervals == 0):  # 5 minutes -10 second timer
         # if ((n_intervals % (5*6)) == 0) or (n_intervals ==0): # 5 minutes -10 second timer
         # print("--->>>updateWeatherUpdateString", datetime.datetime.now(), n_intervals)
@@ -397,6 +398,8 @@ def updateWeatherUpdate(n_intervals, id, value):
 
             return [value]
 
+        #print("id[index]=", id['index'])
+        #print("weather_page.CWJSON=", weather_page.CWJSON)
         value = str(weather_page.CWJSON[id['index']]) + " " + weather_page.CWJSON[id['index'] + 'Units']
     else:
         raise PreventUpdate

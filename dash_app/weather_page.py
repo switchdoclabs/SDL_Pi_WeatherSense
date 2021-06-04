@@ -92,7 +92,7 @@ def RUnits():
 def CTUnits(temperature):
     English_Metric = config.English_Metric
 
-    if English_Metric:  # english units
+    if not English_Metric:  # english units
         temperature = (9.0 / 5.0 * temperature) + 32.0
     return temperature
 
@@ -732,7 +732,7 @@ def WeatherPage():
     subtextcolor = "green"
     maintextcolor = "black"
     CWJSON = generateCurrentWeatherJSON()
-    print("WP-CWSJON=", CWJSON)
+    print("WP-CWSJSON=", CWJSON)
     Row1 = html.Div(
         [
             # dbc.Row( dbc.Col(html.Div(id="Weather Instruments"))),
@@ -748,7 +748,7 @@ def WeatherPage():
                                 [html.H1(id={'type': 'WPdynamic', 'index': "OutdoorTemperature"},
                                          children=str(CWJSON["OutdoorTemperature"]) + TUnits(),
                                          style={"font-size": maintextsize, "color": maintextcolor}),
-                                 # children=str(round(CTUnits(CWJSON["OutdoorTemperature"]),1))+TUnits(), style={"font-size": maintextsize,"color":maintextcolor}),
+                                 #children=str(round(CTUnits(CWJSON["OutdoorTemperature"]),1))+TUnits(), style={"font-size": maintextsize,"color":maintextcolor}),
                                  html.P("Outdoor Temperature", style={"color": subtextcolor})
                                  ], id="ot1", className="mini_container", ),
                             html.Div(
