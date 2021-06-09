@@ -4,6 +4,7 @@ Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments a
 
 And publishes to MQTT topic "weathersense/#"
 
+Version V005 June 9,2021 - Fixed Lightning Typos <BR>
 Version V004 June 2021 - Finished AfterShock Support. Y Axis labels. <BR>
 Version V003 April 2021 - Added AfterShock Support.  Fixed timestamps<BR>
 

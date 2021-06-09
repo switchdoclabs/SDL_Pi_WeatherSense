@@ -2,7 +2,7 @@ from __future__ import print_function
 # import state
 # import sys
 # from datetime import datetime
-SOFTWAREVERSION = "V004"
+SOFTWAREVERSION = "V005"
 import wirelessSensors
 
 import time
