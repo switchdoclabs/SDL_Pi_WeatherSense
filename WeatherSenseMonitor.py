@@ -9,6 +9,8 @@ import time
 from apscheduler.schedulers.background import BackgroundScheduler
 import apscheduler.events
 
+import SkyCamRemote
+import PictureManagement
 # Check for user imports
 try:
     import conflocal as config
@@ -42,6 +44,18 @@ scheduler.add_listener(ap_my_listener, apscheduler.events.EVENT_JOB_ERROR)
 # read wireless sensor package
 scheduler.add_job(wirelessSensors.readSensors)  # run in background
 
+
+# process SkyCam Remote bi-directional messages 
+if (config.enable_MQTT == True):
+    scheduler.add_job(SkyCamRemote.startMQTT)  # run in background
+
+# SkyCam Management Programs
+scheduler.add_job(PictureManagement.cleanPictures, 'cron', day='*', hour=3, minute=4, args=["Daily Picture Clean"])
+
+scheduler.add_job(PictureManagement.buildTimeLapse, 'cron', day='*', hour=7, minute=30, args=["Time Lapse Generation"])
+
+scheduler.add_job(wirelessSensors.readSensors)  # run in background
+
 scheduler.print_jobs()
 
 # start scheduler
@@ -51,3 +65,12 @@ print("Scheduled Jobs")
 print("-----------------")
 scheduler.print_jobs()
 print("-----------------")
+
+
+
+# Main Loop
+
+while True:
+
+    time.sleep(1.0)
+

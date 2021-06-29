@@ -14,8 +14,13 @@ import datetime
 import MySQLdb as mdb
 import traceback
 import state
+import os
+
 
 from paho.mqtt import publish
+
+
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -54,6 +59,7 @@ def randomadd(value, spread):
 # MQTT Publish Line
 def mqtt_publish_single(message, topic):
     topic = '{0}/{1}'.format("weathersense", topic)
+    return
     try:
         publish.single(
             topic=topic,
@@ -207,7 +213,8 @@ def processF016TH(sLine, ReadingCountArray):
     if (config.SWDEBUG):
         sys.stdout.write('Processing F016TH data' + '\n')
         sys.stdout.write('This is the raw data: ' + sLine + '\n')
-        print(ReadingCountArray)
+        if (WSDEBUG):
+            print(ReadingCountArray)
 
     var = json.loads(sLine)
 
@@ -578,11 +585,13 @@ def readSensors():
     lastFT020TTimeStamp = ""
     FT020Count = 0
     IndoorReadingCountArray = [0, 0, 0, 0, 0, 0, 0, 0]
+    # temp value
+    config.SWDEBUG = False
 
     while True:
         #   Other processing can occur here as needed...
         # sys.stdout.write('Made it to processing step. \n')
-
+        
         try:
             src, line = q.get(timeout=1)
             # print(line.decode())
@@ -618,3 +627,7 @@ def readSensors():
                 processWeatherSenseAfterShock(sLine)
 
         sys.stdout.flush()
+
+
+
+

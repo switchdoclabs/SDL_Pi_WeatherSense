@@ -10,6 +10,10 @@ SWDEBUG = True
 SWVERSION = "000"  # set in WeatherSenseMontor.py
 import uuid
 
+#configure SkyCam Remote camera
+CameraRotation = 90
+
+
 # MySQL Logging and Password Information
 
 enable_MySQL_Logging = True
