@@ -5,13 +5,22 @@ import traceback
 import base64
 import datetime
 import config
-import os
+import os, glob
 
 from PIL import ImageFont, ImageDraw, Image
 
 import MySQLdb as mdb
 
 CameraChunkData = {}
+
+def purge(dir, pattern):
+    print("dir=", dir)
+    print("pattern=", pattern)
+    for f in os.listdir(dir):
+        print ("f=", f)
+        if re.search(pattern, f):
+            print("fS=", f)
+            os.remove(os.path.join(dir, f))
 
 def saveChunk(jsonmsg):
 
@@ -25,13 +34,13 @@ def saveChunk(jsonmsg):
     resends = jsonmsg["totalchunkresends"]
     resolution = jsonmsg["resolution"]
 
-    print("Adding Chunk to Array")
-    print("----------------")
-    print("CameraID=", cameraID)
-    print("ChunkNumber=", chunkNumber)
-    print("TotalChunks=", totalChunks)
-    print("Chunksize=", len(chunk))
-    print("PictureSize", pictureSize)
+    #print("Adding Chunk to Array")
+    #print("----------------")
+    #print("CameraID=", cameraID)
+    #print("ChunkNumber=", chunkNumber)
+    #print("TotalChunks=", totalChunks)
+    #print("Chunksize=", len(chunk))
+    #print("PictureSize", pictureSize)
 
     # clear data for ID if chunk number is 0
     try:
@@ -49,11 +58,11 @@ def saveChunk(jsonmsg):
             currentIDList = []
         currentIDList.append(dict( chunknumber= chunkNumber, totalchunks = totalChunks, picturesize = pictureSize, chunk=chunk, resends=resends, resolution=resolution)) 
         CameraChunkData[cameraID] = currentIDList
-        printFilteredCameraChunkData(CameraChunkData)
+        #printFilteredCameraChunkData(CameraChunkData)
         # process picture if ID ChunkCount == last Chunk
         # then clear data
         if (int(chunkNumber)+1 == int(totalChunks)):
-            print("Process the Picture")
+            #print("Process the Picture")
             processPicture(cameraID, messageID, CameraChunkData[cameraID])
             try:
                 # clear it
@@ -61,10 +70,10 @@ def saveChunk(jsonmsg):
             except:
                 pass
 
-        try:
-            print("CameraChunkData Count=", len(CameraChunkData[cameraID]))
-        except:
-            print("CameraChunkData Count=0")
+        #try:
+        #    print("CameraChunkData Count=", len(CameraChunkData[cameraID]))
+        #except:
+        #    print("CameraChunkData Count=0")
             
     except:
         traceback.print_exc()
@@ -103,6 +112,8 @@ def processPicture(cameraID, messageID, CameraChunkList):
         os.makedirs(dirpathname, exist_ok=True)
         os.makedirs("static/CurrentPicture", exist_ok=True)
         filename = dirpathname+"/"+singlefilename    
+
+        
         # now build the full file 
         mutable_bytes = bytearray()
         for myChunk in CameraChunkList:
@@ -111,7 +122,7 @@ def processPicture(cameraID, messageID, CameraChunkList):
             mutable_bytes += base64.b64decode(theChunk)
     
         
-        print("Writing:"+filename)
+        #print("Writing:"+filename)
         f=open(filename,"wb")
         f.write(mutable_bytes)
         f.close()
@@ -120,7 +131,14 @@ def processPicture(cameraID, messageID, CameraChunkList):
         del CameraChunkData[cameraID]
         
         pil_im = Image.open(filename) 
-        pil_im = pil_im.rotate(config.CameraRotation)
+
+        try:
+            myCameraRotation = config.SkyCamRotationArray[cameraID]
+        except:
+            myCameraRotation = config.DefaultCameraRotation
+        print("CameraRotation=", myCameraRotation)
+
+        pil_im = pil_im.rotate(myCameraRotation)
       
         draw = ImageDraw.Draw(pil_im)
         
@@ -163,8 +181,13 @@ def processPicture(cameraID, messageID, CameraChunkList):
         # Save the image
         #pil_im.save(dirpathname+"/Test.jpg", format= 'JPEG')
         currentpicturefilename = "static/CurrentPicture/"+cameraID+".jpg"
+        currentpicturedashfilename = "dash_app/assets/"+cameraID+"_"+messageID+".jpg"
+        for name in glob.glob("dash_app/assets/"+cameraID+"_*.jpg"):
+            os.remove(name)
+
         pil_im.save(filename, format= 'JPEG')
         pil_im.save(currentpicturefilename, format= 'JPEG')
+        pil_im.save(currentpicturedashfilename, format= 'JPEG')
 
 
         first = CameraChunkList[0]

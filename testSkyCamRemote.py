@@ -15,6 +15,7 @@ MQTTSTARTDELAY = 12
 MQTTTURNOFFBLINK = 13
 MQTTBLINKXTIMES = 14
 MQTTSETTODEFAULTS = 15
+MQTTREBOOT = 16
 
 from subprocess import check_output
 
@@ -92,6 +93,15 @@ def sendMessage(client, cameraID, messageType):
             myMessage = json.dumps(myMessage)
             client.publish(MyTopic, myMessage)
 
+    if (messageType == MQTTREBOOT):
+            # send time to wait for contrast adjust 
+            myMessage = {
+                "messagetype": MQTTREBOOT,
+                "myip": myIP
+                }
+        
+            myMessage = json.dumps(myMessage)
+            client.publish(MyTopic, myMessage)
 
     if (messageType == MQTTUPDATEPARAM):
             # send time to wait for contrast adjust 
@@ -114,13 +124,15 @@ def sendMessage(client, cameraID, messageType):
 # main program
 
 # what ID to test
-cameraID = "4FB1"
+cameraID = "DE45"
 #cameraID = "26FD"
 #cameraID = "+"   #sends to all cameras
 # this command will be sent after an INFO messagetype 4  from cameraID
-#sendWhatCommand = MQTTBLINKXTIMES 
+sendWhatCommand = MQTTBLINKXTIMES 
 #sendWhatCommand = MQTTUPDATEPARAM 
-sendWhatCommand = MQTTSTARTDELAY 
+#sendWhatCommand = MQTTSTARTDELAY 
+#sendWhatCommand =  MQTTREBOOT 
+
 #
 client = mqtt.Client()
 client.on_log=on_log

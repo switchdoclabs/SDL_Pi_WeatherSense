@@ -4,6 +4,7 @@ Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments a
 
 And publishes to MQTT topic "weathersense/#"
 
+Version V006 July 25,2021 - Added SkyCam Solar support and Timelapses<BR>
 Version V005 June 9,2021 - Fixed Lightning Typos <BR>
 Version V004 June 2021 - Finished AfterShock Support. Y Axis labels. <BR>
 Version V003 April 2021 - Added AfterShock Support.  Fixed timestamps<BR>
@@ -23,12 +24,12 @@ Supports:<BR>
 - WeatherSense Indoor T/H Sensor<BR>
 - WeatherSense Lightning Detector<BR>
 - WeatherSense Air Quality Index<BR>
-- SolarMAX Solar Panel System<BR>
+- SolarMAX2 Solar Panel System<BR>
 - AfterShock Earthquake Detector System<BR>
+- WeatherSense SkyCam <BR>
 
 Supporting in the future:<BR>
 - WeatherSense Generic <BR>
-- WeatherSense Camera <BR>
 
 Previous Versions:
 

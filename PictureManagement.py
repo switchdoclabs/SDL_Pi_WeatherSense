@@ -19,6 +19,9 @@ import subprocess
 DELETE_FILES_OLDER_THAN_DAYS = 14
 #Start Time Lapse at this Time
 TIME_LAPSE_START_HOUR = 5
+# no of days to keep time lapses
+DELETE_TIME_LAPSES_OLDER_THAN_DAYS = 14
+
 
 def cleanPictures(source):
 
@@ -49,6 +52,30 @@ def cleanPictures(source):
 
     return
 
+def cleanTimeLapses(source):
+
+    #folder to clear from
+    dir_path = 'static/TimeLapses/'
+    
+    threshold = time.time() -DELETE_TIME_LAPSES_OLDER_THAN_DAYS  *86400
+    print(f"threshold = {time.ctime(threshold)} ")
+    devices = os.listdir(dir_path)
+    print ("devices=", devices)
+    for device in devices:
+        device_dir_path = dir_path+device+"/"
+        files = os.listdir(device_dir_path)
+        print ("files=", files)
+       
+        for myFile in files:
+                myFilePath = device_dir_path+myFile
+                creation_time = os.stat(myFilePath).st_ctime
+                if creation_time < threshold:
+                    print(f"threshold = {time.ctime(threshold)} ")
+                    print(f"{myFilePath} is created on {time.ctime(creation_time)} and will be deleted")
+                    os.remove(myFilePath)
+
+    return
+
 def addzeros(count):
     if count < 10:
         return "000"
@@ -57,6 +84,7 @@ def addzeros(count):
     if count < 1000:
         return "0"
     return ""
+
 def buildTimeLapse(source):
     # grab a list of the file names from mySQL
 
@@ -163,7 +191,7 @@ def buildTimeLapse(source):
             except:
                 pass 
 
-            command ="/usr/bin/ffmpeg -r 5 -i %s -c:v libx264 %s " % (inputFiles, outputFile)
+            command ="/usr/bin/ffmpeg -r 20 -i %s -c:v libx264 %s " % (inputFiles, outputFile)
 
             print(command)
             cmd = command.split()

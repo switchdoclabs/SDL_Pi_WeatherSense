@@ -48,7 +48,9 @@ def startMQTT():
     client.loop_start()
 
 def MTon_log(client, userdata, level, buf):
-    print("log: ",buf)
+    #print("log: ",buf)
+    pass
+
 
 # The callback for when the client receives a CONNACK response from the server.
 def MTon_connect(client, userdata, flags, rc):
@@ -64,7 +66,7 @@ def MTon_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def MTon_message(client, userdata, msg):
     global GoodMessage, Resends
-    print("message found:",msg.topic)
+    #print("message found:",msg.topic)
     # get msg topic
     SplitTopic = msg.topic
     SplitTopic = SplitTopic.split("/")
@@ -77,7 +79,7 @@ def MTon_message(client, userdata, msg):
     if (SplitTopic[2] == "PICTURECHUNKS"):
         myChunk = json.loads(msg.payload)
 
-        print("Picture ID %s Chunk %s of %s  Received. Resends: %s  Size=%d" % (myChunk["messageid"],int(myChunk["chunknumber"])+1, myChunk["totalchunknumbers"], myChunk["totalchunkresends"], len(myChunk["chunk"])))
+        #print("Picture ID %s Chunk %s of %s  Received. Resends: %s  Size=%d" % (myChunk["messageid"],int(myChunk["chunknumber"])+1, myChunk["totalchunknumbers"], myChunk["totalchunkresends"], len(myChunk["chunk"])))
        
         if (int(myChunk["chunknumber"])+1 == int(myChunk["totalchunknumbers"])):
             GoodMessage = GoodMessage + 1
@@ -96,7 +98,7 @@ def sendCommand(client, msg, messageType, payload):
     # get msg topic
     SplitTopic = msg.topic
     SplitTopic = SplitTopic.split("/")
-    print (SplitTopic)
+    #print (SplitTopic)
     MyTopic = SplitTopic[0]+"/"+SplitTopic[1]+"/"+"COMMANDS"
     # set up JSON 
     myIP = check_output(['hostname', '-I'])
@@ -167,8 +169,8 @@ def processINFOMessage(msg):
                 loadPower  =  float(myJSON["loadcurrent"])* float(myJSON["loadvoltage"])
                 solarPower =  float(myJSON["solarpanelcurrent"])* float(myJSON["solarpanelvoltage"])
 
-                fields = "cameraid, messageid, softwareversion, messagetype, rssi, internaltemperature, internalhumidity, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent,  batterypower, loadpower, solarpower"
-                values = "'%s', %s, %s, %s, %s, %s, %s,    %s, %s, %s, %s, %s, %s,  %s, %s, %s " % (
+                fields = "cameraid, messageid, softwareversion, messagetype, rssi, internaltemperature, internalhumidity, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent,  batterypower, loadpower, solarpower, gndrreboots"
+                values = "'%s', %s, %s, %s, %s, %s, %s,    %s, %s, %s, %s, %s, %s,  %s, %s, %s, %s " % (
                 myJSON["id"], 
                 myJSON["messageid"], 
                 myJSON["softwareversion"], 
@@ -184,8 +186,9 @@ def processINFOMessage(msg):
                 myJSON["solarpanelcurrent"], 
                 batteryPower, 
                 loadPower, 
-                solarPower)
-                
+                solarPower,
+                myJSON["gndrreboots"] )
+               
                 query = "INSERT INTO SkyCamSensors (%s) VALUES(%s )" % (fields, values)
                 #print(query)
                 cur.execute(query)

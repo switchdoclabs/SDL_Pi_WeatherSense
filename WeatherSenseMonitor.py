@@ -2,7 +2,7 @@ from __future__ import print_function
 # import state
 # import sys
 # from datetime import datetime
-SOFTWAREVERSION = "V005"
+SOFTWAREVERSION = "V006"
 import wirelessSensors
 
 import time
@@ -52,7 +52,9 @@ if (config.enable_MQTT == True):
 # SkyCam Management Programs
 scheduler.add_job(PictureManagement.cleanPictures, 'cron', day='*', hour=3, minute=4, args=["Daily Picture Clean"])
 
-scheduler.add_job(PictureManagement.buildTimeLapse, 'cron', day='*', hour=7, minute=30, args=["Time Lapse Generation"])
+scheduler.add_job(PictureManagement.cleanTimeLapses, 'cron', day='*', hour=3, minute=10, args=["Daily Time Lapse Clean"])
+
+scheduler.add_job(PictureManagement.buildTimeLapse, 'cron', day='*', hour=5, minute=30, args=["Time Lapse Generation"])
 
 scheduler.add_job(wirelessSensors.readSensors)  # run in background
 

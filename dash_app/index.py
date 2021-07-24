@@ -1,4 +1,4 @@
-# import os
+import os
 # import shutil
 # import glob
 import dash
@@ -34,20 +34,18 @@ import weather_page
 import indoorth
 import aftershock_page
 import aqi_page
+import skycam_page
 import lightning_page
 
 # import generic_page
 
+STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+
+print (STATIC_PATH)
 # state of previous page
 previousPathname = ""
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
-
-# print("new navbar=")
-nav = Navbar()
-logo = Logo(app)
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE],)
 
 # print("new navbar=")
 nav = Navbar()
@@ -137,6 +135,9 @@ def display_page(pathname):
         myLayout = indoorth.IndoorTHPage()
         # print("myLayout=")
         myLayout2 = ""
+    if pathname == '/skycam_page':
+        myLayout = skycam_page.SkyCamPage()
+        myLayout2 = ""
     if pathname == '/aqi_page':
         myLayout = aqi_page.AQIPage()
         myLayout2 = ""
@@ -168,6 +169,53 @@ def display_page(pathname):
 ############
 # callbacks
 ############
+# skycam_page callbacks
+
+@app.callback(
+    [
+        Output({'type': 'SkyCamGraphs', 'index': 0}, 'children'),
+    ],
+    [Input('minute-interval-component', 'n_intervals'),
+     Input({'type': 'SkyCamGraphs', 'index': 0}, 'id')],
+    [State({'type': 'SkyCamGraphs', 'index': 0}, 'value')]
+)
+def update_sky_metrics(n_intervals, id, value):
+    #print("skycam_n_intervals=", n_intervals)
+    myIndex = id['index']
+    # build figures
+    SkyCamList = skycam_page.getSkyCamList()
+    output = skycam_page.build_solar_graphs(SkyCamList)
+    #print("output=", output)
+    return [output]
+
+
+
+
+@app.callback(
+    [
+        Output({'type': 'SkyCamPics', 'index': 0}, 'children'),
+    ],
+    [Input('minute-interval-component', 'n_intervals'),
+     Input({'type': 'SkyCamPics', 'index': 0}, 'id')],
+    [State({'type': 'SkyCamPics', 'index': 0}, 'value')]
+)
+def update_skypic_metrics(n_intervals, id, value):
+    #print("skycampic_n_intervals=", n_intervals)
+    myIndex = id['index']
+    # build pictures
+    SkyCamList = skycam_page.getSkyCamList()
+    output = skycam_page.buildPics(SkyCamList)
+    #print("picoutput=", output)
+    return [output]
+
+
+
+
+
+
+
+
+
 # aftershock_page callbacks
 
 
@@ -458,6 +506,10 @@ def updateWeatherGraphPage(n_intervals, id, value):
     else:
         raise PreventUpdate
     return [fig]
+
+@app.server.route('/static/<resource>')
+def serve_static(resource):
+        return flask.send_from_directory(STATIC_PATH, resource)
 
 
 if __name__ == '__main__':
