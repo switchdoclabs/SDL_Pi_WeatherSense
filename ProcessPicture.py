@@ -147,7 +147,8 @@ def processPicture(cameraID, messageID, CameraChunkList):
 
 
         myText = "WeatherSense SkyCam-%s %s " % (cameraID, datetime.datetime.now().strftime('%d-%b-%Y %H:%M:%S'))
-        print("mySkyCameraText=", myText)
+        if (config.SWDEBUG):
+            print("mySkyCameraText=", myText)
 
         # Draw the text
         color = 'rgb(255,255,255)'

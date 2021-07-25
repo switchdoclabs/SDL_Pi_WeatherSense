@@ -97,8 +97,7 @@ def returnWindDirection(windDirection):
 
 def returnPercentLeftInBattery(currentVoltage, maxVolt):
 
-    if(config.SolarMAX_Type == "LEAD"):
-
+    if (maxVolt > 11):
         returnPercent = (old_div((currentVoltage - 11.0),(1.9))) * 100.00
         if (returnPercent > 100.00):
             returnPercent = 100.0

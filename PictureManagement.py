@@ -132,7 +132,7 @@ def buildTimeLapse(source):
     
 
                 query = "SELECT timestamp, cameraID, picturename  FROM  SkyCamPictures WHERE cameraID = '%s' AND timestamp >= '%s' AND timestamp < '%s' ORDER BY timestamp" % (device, starttime, endtime)
-                print("query=", query)
+                #print("query=", query)
                 cur.execute(query)
                 filerecords = cur.fetchall()
                 cur.execute(query)

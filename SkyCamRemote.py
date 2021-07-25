@@ -17,7 +17,7 @@ import traceback
 import state
 import os
 import ProcessPicture
-
+import util
 GoodMessage = 0
 Resends = 0
 
@@ -72,7 +72,8 @@ def MTon_message(client, userdata, msg):
     SplitTopic = SplitTopic.split("/")
     
     if (SplitTopic[2] == "INFO"):
-        print("INFO msg Received: %s" % msg.payload)
+        if (config.SWDEBUG):
+            print("INFO msg Received: %s" % msg.payload)
 
         processINFOMessage(msg)
         return 
@@ -84,7 +85,8 @@ def MTon_message(client, userdata, msg):
         if (int(myChunk["chunknumber"])+1 == int(myChunk["totalchunknumbers"])):
             GoodMessage = GoodMessage + 1
             Resends = Resends + int(myChunk["totalchunkresends"])
-            print("Picture ID %s Good Message %s Resends: %d" % (myChunk["messageid"], GoodMessage, Resends))
+            if (config.SWDEBUG):
+                print("Picture ID %s Good Message %s Resends: %d" % (myChunk["messageid"], GoodMessage, Resends))
         # deal with Chunks
         
         ProcessPicture.saveChunk(myChunk)
@@ -156,6 +158,7 @@ def processINFOMessage(msg):
             try:
                 myTEST = ""
                 myTESTDescription = ""
+                print("in INFO with SQL")
 
                 con = mdb.connect(
                     config.MySQL_Host,
@@ -168,9 +171,10 @@ def processINFOMessage(msg):
                 batteryPower =  float(myJSON["batterycurrent"])* float(myJSON["batteryvoltage"])
                 loadPower  =  float(myJSON["loadcurrent"])* float(myJSON["loadvoltage"])
                 solarPower =  float(myJSON["solarpanelcurrent"])* float(myJSON["solarpanelvoltage"])
-
-                fields = "cameraid, messageid, softwareversion, messagetype, rssi, internaltemperature, internalhumidity, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent,  batterypower, loadpower, solarpower, gndrreboots"
-                values = "'%s', %s, %s, %s, %s, %s, %s,    %s, %s, %s, %s, %s, %s,  %s, %s, %s, %s " % (
+                batteryCharge = util.returnPercentLeftInBattery(float(myJSON["batteryvoltage"]), 4.2)
+                #print("batteryChange=", batteryCharge)
+                fields = "cameraid, messageid, softwareversion, messagetype, rssi, internaltemperature, internalhumidity, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent,  batterypower, loadpower, solarpower, gndrreboots, batterycharge"
+                values = "'%s', %s, %s, %s, %s, %s, %s,    %s, %s, %s, %s, %s, %s,  %s, %s, %s, %s, %d " % (
                 myJSON["id"], 
                 myJSON["messageid"], 
                 myJSON["softwareversion"], 
@@ -187,15 +191,15 @@ def processINFOMessage(msg):
                 batteryPower, 
                 loadPower, 
                 solarPower,
-                myJSON["gndrreboots"] )
+                myJSON["gndrreboots"],
+                batteryCharge)
                
                 query = "INSERT INTO SkyCamSensors (%s) VALUES(%s )" % (fields, values)
                 #print(query)
                 cur.execute(query)
                 con.commit()
-            except mdb.Error as e:
+            except: 
                 traceback.print_exc()
-                print("Error %d: %s" % (e.args[0], e.args[1]))
                 con.rollback()
                 # sys.exit(1)
 

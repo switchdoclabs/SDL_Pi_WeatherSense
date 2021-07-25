@@ -107,7 +107,6 @@ COMMIT;
 -- Table structure for table `SkyCamSensors`
 --
 
-DROP TABLE IF EXISTS `SkyCamSensors`;
 CREATE TABLE IF NOT EXISTS `SkyCamSensors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -128,6 +127,7 @@ CREATE TABLE IF NOT EXISTS `SkyCamSensors` (
   `loadpower` float NOT NULL,
   `solarpower` float NOT NULL,
   `gndrreboots` int(11) DEFAULT 0,
+  `batterycharge` float DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 COMMIT;

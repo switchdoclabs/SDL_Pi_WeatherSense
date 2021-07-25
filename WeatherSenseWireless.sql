@@ -337,3 +337,63 @@ ALTER TABLE `WeatherData`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `SkyCamPictures`
+--
+
+CREATE TABLE IF NOT EXISTS `SkyCamPictures` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `messageID` int(11) NOT NULL DEFAULT -1,
+  `cameraID` varchar(10) NOT NULL,
+  `picturename` varchar(100) NOT NULL,
+  `picturesize` int(11) NOT NULL,
+  `resends` int(11) NOT NULL,
+  `resolution` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `SkyCamSensors`
+--
+
+CREATE TABLE IF NOT EXISTS `SkyCamSensors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `cameraID` varchar(11) NOT NULL,
+  `messageID` int(11) NOT NULL,
+  `softwareversion` int(11) NOT NULL,
+  `messagetype` int(11) NOT NULL,
+  `rssi` int(11) NOT NULL,
+  `internaltemperature` float NOT NULL,
+  `internalhumidity` int(11) NOT NULL,
+  `batteryvoltage` float NOT NULL,
+  `batterycurrent` float NOT NULL,
+  `loadvoltage` float NOT NULL,
+  `loadcurrent` float NOT NULL,
+  `solarvoltage` float NOT NULL,
+  `solarcurrent` float NOT NULL,
+  `batterypower` float NOT NULL,
+  `loadpower` float NOT NULL,
+  `solarpower` float NOT NULL,
+  `gndrreboots` int(11) DEFAULT 0,
+  `batterycharge` float DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+

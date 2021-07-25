@@ -15,7 +15,7 @@ import MySQLdb as mdb
 import traceback
 import state
 import os
-
+import util
 
 from paho.mqtt import publish
 
@@ -213,7 +213,8 @@ def processF016TH(sLine, ReadingCountArray):
     if (config.SWDEBUG):
         sys.stdout.write('Processing F016TH data' + '\n')
         sys.stdout.write('This is the raw data: ' + sLine + '\n')
-        if (WSDEBUG):
+        if config.SWDEBUG:
+        
             print(ReadingCountArray)
 
     var = json.loads(sLine)
@@ -329,7 +330,7 @@ def processWeatherSenseAfterShock(sLine):
             batteryPower =  float(state["batterycurrent"])* float(state["batteryvoltage"])
             loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
             solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
-            batteryCharge = 0.0
+            batteryCharge = util.returnPercentLeftInBattery(state["batteryvoltage"], 4.2)
 
             fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, eqcount, finaleq_si, finaleq_pga, instanteq_si, instanteq_pga, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, solarpresent, aftershockpresent, keepalivemessage, lowbattery, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
             values = "%d, %d, %d, %d, %d,%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f, %d, %d, %d, %d,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (
@@ -391,7 +392,7 @@ def processWeatherSenseTB(sLine):
             batteryPower =  float(state["batterycurrent"])* float(state["batteryvoltage"])
             loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
             solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
-            batteryCharge = 0.0
+            batteryCharge = util.returnPercentLeftInBattery(state["batteryvoltage"], 4.2)
 
             fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol,irqsource, previousinterruptresult, lightninglastdistance, sparebyte, lightningcount, interruptcount,  batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
             values = "%d, %d, %d, %d, %d, %d, %d, %d,%d, %d,%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (
@@ -452,7 +453,8 @@ def processWeatherSenseAQI(sLine):
             batteryPower =  float(state["batterycurrent"])* float(state["batteryvoltage"])
             loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
             solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
-            batteryCharge = 0.0
+            batteryCharge = util.returnPercentLeftInBattery(state["batteryvoltage"], 4.2)
+            
             # calculate AQI 24 Hour
             timeDelta = datetime.timedelta(days=1)
             now = datetime.datetime.now()
@@ -531,7 +533,7 @@ def processSolarMAX(sLine):
                 batteryPower =  float(state["batterycurrent"])* float(state["batteryvoltage"])
                 loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
                 solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
-                batteryCharge = 0.0
+                batteryCharge = util.returnPercentLeftInBattery(state["batteryvoltage"], 13.2)
 
                 fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, internaltemperature,internalhumidity, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
                 values = "%d, %d, %d, %d, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (
@@ -586,7 +588,7 @@ def readSensors():
     FT020Count = 0
     IndoorReadingCountArray = [0, 0, 0, 0, 0, 0, 0, 0]
     # temp value
-    config.SWDEBUG = False
+    #config.SWDEBUG = False
 
     while True:
         #   Other processing can occur here as needed...
