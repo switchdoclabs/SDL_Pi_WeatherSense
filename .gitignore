@@ -1,3 +1,7 @@
+static/BuildTimeLapse
+static/CurrentPicture
+static/SkyCam
+static/TimeLapses
 *_*.jpg
 *.pyc
 tx*
