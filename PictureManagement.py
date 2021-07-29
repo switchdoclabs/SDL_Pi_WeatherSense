@@ -174,8 +174,10 @@ def buildTimeLapse(source):
                 toPath = dirpath+"/pic_"+addzeros(count)+"%d"%(count)+".jpg"
                 count = count +1 
                 print("cp %s %s" % (fromPath, toPath))
-                shutil.copyfile(fromPath, toPath)
-
+                try:
+                    shutil.copyfile(fromPath, toPath)
+                except:
+                    pass
             # build the video
             # get full path name
 
