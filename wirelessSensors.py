@@ -479,6 +479,8 @@ def processWeatherSenseAQI(sLine):
                 (aqi.POLLUTANT_PM25, state['PM2.5A']),
                 (aqi.POLLUTANT_PM10, state['PM10A'])
                 ])
+            if (myaqi > 500):
+                myaqi = 500
             print("myaqi=", myaqi)
             state['AQI'] = myaqi
 
