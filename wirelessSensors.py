@@ -19,7 +19,7 @@ import util
 
 from paho.mqtt import publish
 
-
+import aqi
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -472,6 +472,15 @@ def processWeatherSenseAQI(sLine):
                 AQI24Hour = (myAQITotal + float(state['AQI'])) / (len(myAQIRecords) + 1)
             else:
                 AQI24Hour = 0.0
+            # HOTFIX for AQI problem from the wireless AQI sensor
+            # recalculate AQI from RAW values and write in database
+
+            myaqi = aqi.to_aqi([
+                (aqi.POLLUTANT_PM25, state['PM2.5A']),
+                (aqi.POLLUTANT_PM10, state['PM10A'])
+                ])
+            print("myaqi=", myaqi)
+            state['AQI'] = myaqi
 
             fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, PM1_0S, PM2_5S, PM10S, PM1_0A, PM2_5A, PM10A, AQI, AQI24Hour, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
             values = "%d, %d, %d, %d, %d, %d, %d, %d, %d,%d, %d, %6.2f,%6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%6.2f, %6.2f, %6.2f,\'%s\', \'%s\'" % (
