@@ -124,9 +124,9 @@ def getTimeLapseList(cam):
     myFiles.sort(key=lambda x: os.path.getmtime(x), reverse=True)
 
     if (len(myFiles) > 14):
-        myRange = range(1, 14)
+        myRange = range(0, 14)
     else:
-        myRange = range(1,len(myFiles))
+        myRange = range(0,len(myFiles))
     
     for i in myRange: 
         singleName = os.path.basename(myFiles[i-1])
