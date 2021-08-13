@@ -129,7 +129,7 @@ def getTimeLapseList(cam):
         myRange = range(0,len(myFiles))
     
     for i in myRange: 
-        singleName = os.path.basename(myFiles[i-1])
+        singleName = os.path.basename(myFiles[i])
         #output.append(html.P(singleName))
         output.append(dcc.Link(singleName, href="/static/TimeLapses/"+cam+"/"+singleName, target='blank'))
         output.append(html.Br())
