@@ -4,11 +4,13 @@ Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments a
 
 And publishes to MQTT topic "weathersense/#"
 
-Version V009 August 13,2021 - Fix for TimeLapse date sorting<BR>
+Version V010 August 21,2021 - Lightning Formatting<BR>
+
 Before starting V008 or greater, do: <BR>
 sudo pip3 install python-aqi<BR>
 <BR>
 
+Version V009 August 13,2021 - Fix for TimeLapse date sorting<BR>
 Version V008 August 2,2021 - Fix for AQI Values from Solar AQI<BR>
 Version V007 August 2,2021 - Fix for Timelapse display<BR>
 Version V006 August 1,2021 - Added SkyCam Solar support and Timelapses<BR>

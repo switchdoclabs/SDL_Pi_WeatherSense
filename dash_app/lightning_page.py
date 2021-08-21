@@ -49,7 +49,7 @@ def updateLightningLines():
     nowTime = now.strftime('%Y-%m-%d %H:%M:%S')
 
     query = "SELECT timestamp, lightningcount, deviceid from TB433MHZ WHERE (irqsource = 8) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1 " % WSLGHTID
-    print("queryA=", query)
+    #print("queryA=", query)
     cur.execute(query)
     records = cur.fetchall()
     if (len(records) > 0):
@@ -61,12 +61,12 @@ def updateLightningLines():
 
     query = "SELECT timestamp, deviceid, lightninglastdistance, irqsource from TB433MHZ WHERE (timestamp > '%s') and (irqsource=8) AND (deviceid = %d) ORDER BY timestamp DESC LIMIT 1" % (before, WSLGHTID)
     cur.execute(query)
-    print("queryD=", query)
+    #print("queryD=", query)
     records = cur.fetchall()
     if (len(records) > 0):
        English_Metric = config.English_Metric
        if (English_Metric == False):
-            LLJSON["LastLightningDistance"] = str(records[0][2]*0.6214) + " miles"
+            LLJSON["LastLightningDistance"] = str(round(records[0][2]*0.6214,1)) + " miles"
        else:
             LLJSON["LastLightningDistance"] = str(records[0][2]) + "km"
 

@@ -290,17 +290,17 @@ def updateAfterShockUpdate(n_intervals, id, value):
     [State({'type': 'Lightninggraph', 'index': MATCH}, 'value')]
 )
 def update_metrics(n_intervals, id, value):
-    print("n_intervals=", n_intervals)
+    #print("n_intervals=", n_intervals)
     myIndex = id['index']
     # build figures
     if (myIndex == '1'):
-        print("GraphLightning figure")
+        #print("GraphLightning figure")
         figure = lightning_page.build_graphLightning_figure()
     if (myIndex == '2'):
-        print("GraphLightning Solar Currents")
+        #print("GraphLightning Solar Currents")
         figure = lightning_page.build_graph1_figure()
     if (myIndex == '3'):
-        print("GraphLightning Solar Voltages")
+        #print("GraphLightning Solar Voltages")
         figure = lightning_page.build_graph2_figure()
 
     return [figure]
@@ -319,8 +319,8 @@ def updateLightningUpdate(n_intervals, id, value):
         # if ((n_intervals % (1*2)) == 0) or (n_intervals ==0): # 5 minutes -10 second timer
 
         # if ((n_intervals % (5*6)) == 0) or (n_intervals ==0): # 5 minutes -10 second timer
-        print("--->>>updateLightningUpdate", datetime.datetime.now(), n_intervals)
-        print("updateLightningUpdate n_intervals =", n_intervals, id['index'])
+        #print("--->>>updateLightningUpdate", datetime.datetime.now(), n_intervals)
+        #print("updateLightningUpdate n_intervals =", n_intervals, id['index'])
         if (id['index'] == "StringTime"):
             # weather_page.CWJSON = weather_page.generateCurrentWeatherJSON()
             # value = str(weather_page.CWJSON[id['index']]) +" "+ weather_page.CWJSON[id['index']+'Units']
