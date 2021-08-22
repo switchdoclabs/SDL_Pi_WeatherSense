@@ -17,6 +17,7 @@ MQTTBLINKXTIMES = 14
 MQTTSETTODEFAULTS = 15
 MQTTREBOOT = 16
 MQTTRESOLUTION = 17
+MQTTERASEMEMORY = 18
 
 from subprocess import check_output
 
@@ -77,7 +78,7 @@ def sendMessage(client, cameraID, messageType):
             myMessage = {
                 "messagetype": MQTTCYCLECHANGE,
                 "myip": myIP,
-                "timetosleep": 110
+                "timetosleep": 170
                 }
 
             myMessage = json.dumps(myMessage)
@@ -95,7 +96,7 @@ def sendMessage(client, cameraID, messageType):
             client.publish(MyTopic, myMessage)
 
     if (messageType == MQTTREBOOT):
-            # send time to wait for contrast adjust 
+            #reboot SkyCam 
             myMessage = {
                 "messagetype": MQTTREBOOT,
                 "myip": myIP
@@ -105,18 +106,28 @@ def sendMessage(client, cameraID, messageType):
             client.publish(MyTopic, myMessage)
 
     if (messageType == MQTTRESOLUTION):
-            # send time to wait for contrast adjust 
+            # set resolution
             myMessage = {
                 "messagetype": MQTTRESOLUTION,
                 "myip": myIP,
-                "framesize":13  # set UXGA 
+                "framesize":10  # set UXGA 
+                }
+        
+            myMessage = json.dumps(myMessage)
+            client.publish(MyTopic, myMessage)
+
+    if (messageType == MQTTERASEMEMORY):
+            # set resolution
+            myMessage = {
+                "messagetype": MQTTERASEMEMORY,
+                "myip": myIP
                 }
         
             myMessage = json.dumps(myMessage)
             client.publish(MyTopic, myMessage)
 
     if (messageType == MQTTUPDATEPARAM):
-            # send time to wait for contrast adjust 
+            # update camera parameters 
             myMessage = {
                 "messagetype": MQTTUPDATEPARAM,
                 "myip": myIP,
@@ -136,14 +147,16 @@ def sendMessage(client, cameraID, messageType):
 # main program
 
 # what ID to test
+cameraID = "3BAD"
 #cameraID = "F329"
 #cameraID = "DE45"
-cameraID = "26FD"
+#cameraID = "26FD"
 #cameraID = "+"   #sends to all cameras
 # this command will be sent after an INFO messagetype 4  from cameraID
+#sendWhatCommand = MQTTERASEMEMORY
+#sendWhatCommand = MQTTCYCLECHANGE
 #sendWhatCommand = MQTTRESOLUTION 
-sendWhatCommand = MQTTCYCLECHANGE 
-#sendWhatCommand = MQTTBLINKXTIMES 
+sendWhatCommand = MQTTBLINKXTIMES 
 #sendWhatCommand = MQTTUPDATEPARAM 
 #sendWhatCommand = MQTTSTARTDELAY 
 #sendWhatCommand =  MQTTREBOOT 

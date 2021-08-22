@@ -14,8 +14,9 @@ import uuid
 #default
 DefaultCameraRotation = 90
 SkyCamRotationArray = {}
-#SkyCamRotationArray["F329"] = 0
-SkyCamRotationArray["F329"] = 0
+SkyCamRotationArray["DE45"] = 90
+SkyCamRotationArray["3BAD"] =270 
+SkyCamRotationArray["26FD"] =270 
 
 
 # MySQL Logging and Password Information
