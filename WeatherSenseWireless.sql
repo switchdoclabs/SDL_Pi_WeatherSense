@@ -211,7 +211,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `AS433MHZ` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `ID` int(11) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `messageID` int(11) NOT NULL,
   `deviceid` int(11) NOT NULL,
@@ -239,8 +239,7 @@ CREATE TABLE IF NOT EXISTS `AS433MHZ` (
   `loadpower` float NOT NULL,
   `solarpower` float NOT NULL,
   `test` text NOT NULL,
-  `testdescription` text NOT NULL,
-  PRIMARY KEY (`ID`)
+  `testdescription` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 COMMIT;
 
@@ -256,15 +255,13 @@ COMMIT;
 --
 -- Indexes for table `AS433MHZ`
 --
-ALTER TABLE `AS433MHZ`
-  ADD PRIMARY KEY (`ID`);
+ALTER TABLE `AS433MHZ` ADD PRIMARY KEY (`ID`);
 
 --
 -- Indexes for table `AQI433MHZ`
 --
 ALTER TABLE `AQI433MHZ`
   ADD PRIMARY KEY (`ID`);
-
 --
 -- Indexes for table `Generic`
 --

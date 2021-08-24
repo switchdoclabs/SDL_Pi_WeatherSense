@@ -11,7 +11,6 @@ import traceback
 import shutil
 
 import ffmpeg
-from time_lapse import output
 
 import subprocess
 

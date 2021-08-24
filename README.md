@@ -4,12 +4,21 @@ Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments a
 
 And publishes to MQTT topic "weathersense/#"
 
-Version V011 August 22,2021 - TimeLapse Error Fix<BR>
+
+Version V012 August 23,2021 - Check for Database existance<BR>
+
 
 Before starting V008 or greater, do: <BR>
 sudo pip3 install python-aqi<BR>
-<BR>
+sudo pip3 install ffmpeg<BR>
 
+<BR>
+if you are updating from an older database version do the following:
+<pre>
+sudo mysql -u root -p WeatherSenseWireless < updateWeatherSenseWireless.sql
+</pre>
+
+Version V011 August 22,2021 - TimeLapse Error Fix<BR>
 Version V010 August 21,2021 - Lightning Formatting<BR>
 Version V009 August 13,2021 - Fix for TimeLapse date sorting<BR>
 Version V008 August 2,2021 - Fix for AQI Values from Solar AQI<BR>
@@ -18,12 +27,6 @@ Version V006 August 1,2021 - Added SkyCam Solar support and Timelapses<BR>
 Version V005 June 9,2021 - Fixed Lightning Typos <BR>
 Version V004 June 2021 - Finished AfterShock Support. Y Axis labels. <BR>
 Version V003 April 2021 - Added AfterShock Support.  Fixed timestamps<BR>
-
-if you are updating from an older database version do the following:
-<pre>
-sudo mysql -u root -p WeatherSenseWireless < updateWeatherSenseWireless.sql
-</pre>
-
 
 
 --------------------<BR>

@@ -1,9 +1,10 @@
 from __future__ import print_function
 # import state
-# import sys
+import sys
 # from datetime import datetime
-SOFTWAREVERSION = "V011"
+SOFTWAREVERSION = "V012"
 import wirelessSensors
+import MySQLdb as mdb
 
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -16,6 +17,53 @@ try:
     import conflocal as config
 except ImportError:
     import config
+
+import traceback
+
+
+# WeatherSense SQL Database
+try:
+
+        con = mdb.connect(
+          "localhost",
+          "root",
+          config.MySQL_Password,
+          "WeatherSenseWireless"
+          )
+
+except:
+        print(traceback.format_exc())
+        print("--------")
+        print("MySQL Database WeatherSenseWireless Not Installed.")
+        print("Run this command:")
+        print("sudo mysql -u root -p < WeatherSenseWireless.sql")
+        print("WeatherSenseMonitor Stopped")
+        print("--------")
+        sys.exit("WeatherSenseMonitor Requirements Error Exit")
+
+# Check for updates having been applied
+try:
+
+        con = mdb.connect(
+          "localhost",
+          "root",
+          config.MySQL_Password,
+          "WeatherSenseWireless"
+          )
+        cur = con.cursor()
+        query = "SELECT * FROM SkyCamPictures"
+        cur.execute(query)
+except:
+        #print(traceback.format_exc())
+        print("--------")
+        print("MySQL Database WeatherSenseWireless Updates Not Installed.")
+        print("Run this command:")
+        print("sudo mysql -u root -p WeatherSenseWireless < updateWeatherSenseWireless.sql")
+        print("WeatherSenseMonitor Stopped")
+        print("--------")
+        sys.exit("WeatherSenseMonitor Requirements Error Exit")
+
+
 
 print("-----------------")
 print("WeatherSense Monitoring Software")
