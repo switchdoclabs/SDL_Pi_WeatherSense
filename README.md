@@ -1,11 +1,18 @@
 SwitchDoc Labs WeatherSense Open Source Protocol Monitor
 
+For webupdate<BR>
+
+pip install SafecastPy
+
+
+
 Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments and records to database
 
 And publishes to MQTT topic "weathersense/#"
 
 
-Version V012 August 23,2021 - Check for Database existance<BR>
+Version V014 April 11,2022 - Added fixSkyCamRemote.py for setting MQTT addresses<BR>
+Version V013 March 23,2022 - Added Radiation Detector Support<BR>
 
 
 Before starting V008 or greater, do: <BR>
@@ -18,6 +25,7 @@ if you are updating from an older database version do the following:
 sudo mysql -u root -p WeatherSenseWireless < updateWeatherSenseWireless.sql
 </pre>
 
+Version V012 August 23,2021 - Check for Database existance<BR>
 Version V011 August 22,2021 - TimeLapse Error Fix<BR>
 Version V010 August 21,2021 - Lightning Formatting<BR>
 Version V009 August 13,2021 - Fix for TimeLapse date sorting<BR>
@@ -40,6 +48,7 @@ Supports:<BR>
 - SolarMAX2 Solar Panel System<BR>
 - AfterShock Earthquake Detector System<BR>
 - WeatherSense SkyCam <BR>
+- WeatherSense Radiation Detector <BR>
 
 Supporting in the future:<BR>
 - WeatherSense Generic <BR>

@@ -19,6 +19,7 @@ def Navbar():
             dbc.NavItem(dbc.NavLink("Indoor T/H", href="/indoorth_page")),
             dbc.NavItem(dbc.NavLink("AQI", href="/aqi_page")),
             dbc.NavItem(dbc.NavLink("Lightning", href="/lightning_page")),
+            dbc.NavItem(dbc.NavLink("Radiation", href="/radiation_page")),
             dbc.NavItem(dbc.NavLink("AfterShock", href="/aftershock_page")),
             dbc.NavItem(dbc.NavLink("SolarMAX2", href="/solarmax_page")),
             dbc.NavItem(dbc.NavLink("Generic", href="/generic_page")),

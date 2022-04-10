@@ -15,6 +15,7 @@ import time
 import plotly.graph_objs as go
 # from dash.dependencies import Input, Output, MATCH, ALL, State
 
+os.makedirs("static/SkyCam", exist_ok=True)
 
 # build the path to import config.py from the parent directory
 sys.path.append('../')
