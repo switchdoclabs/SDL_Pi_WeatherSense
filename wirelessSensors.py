@@ -144,8 +144,8 @@ def processFT020T(sLine, lastFT020TTimeStamp, ReadingCount):
     Rain60Minutes = 0.0
 
     wLight = var["light"]
-    if (wLight >= 0x1fffa):
-        wLight = wLight | 0x7fff0000
+    #if (wLight >= 0x1fffa):
+    #    wLight = wLight | 0x7fff0000
 
     wUVI = var["uv"]
     if (wUVI >= 0xfa):

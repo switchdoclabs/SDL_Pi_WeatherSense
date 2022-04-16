@@ -362,7 +362,7 @@ def update_metrics(n_intervals, id, value):
         print("GraphRAD Solar Currents")
         figure = radiation_page.build_graph1_figure()
     if (myIndex == '3'):
-        print("GraphAQI Solar Voltages")
+        print("GraphRAD Solar Voltages")
         figure = radiation_page.build_graph2_figure()
 
     return [figure]

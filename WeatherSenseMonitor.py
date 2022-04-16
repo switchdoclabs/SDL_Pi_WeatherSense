@@ -2,7 +2,7 @@ from __future__ import print_function
 # import state
 import sys
 # from datetime import datetime
-SOFTWAREVERSION = "V014"
+SOFTWAREVERSION = "V015"
 import wirelessSensors
 import MySQLdb as mdb
 
@@ -53,6 +53,9 @@ try:
         cur = con.cursor()
         query = "SELECT * FROM SkyCamPictures"
         cur.execute(query)
+        query = "SELECT * FROM RAD433MHZ"
+        cur.execute(query)
+
 except:
         #print(traceback.format_exc())
         print("--------")
