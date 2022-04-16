@@ -32,7 +32,7 @@ try:
           )
 
 except:
-        print(traceback.format_exc())
+        #print(traceback.format_exc())
         print("--------")
         print("MySQL Database WeatherSenseWireless Not Installed.")
         print("Run this command:")
