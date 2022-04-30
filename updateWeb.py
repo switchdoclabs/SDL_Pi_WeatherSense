@@ -2,6 +2,7 @@
 # configuration in updateWeb.conf
 
 import traceback
+import sys
 
 try:
     import updateWebConfigLocal as updateWebConfig
@@ -18,6 +19,7 @@ try:
     import SafecastPy
 except:
     print("SafecastPy missing.  run:  sudo pip3 install SafecastPy ")
+    sys.exit(1)
 import datetime
 
 safecast = SafecastPy.SafecastPy(
