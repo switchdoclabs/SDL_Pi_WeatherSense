@@ -14,7 +14,10 @@ except:
 import requests
 import config
 
-import SafecastPy
+try:
+    import SafecastPy
+except:
+    print("SafecastPy missing.  run:  sudo pip3 install SafecastPy ")
 import datetime
 
 safecast = SafecastPy.SafecastPy(
