@@ -10,31 +10,27 @@
 
 #general
 
-# put your latitude and longitude
-RADLATITUDE=47.9999999
-RADLONGITUDE=-117.999999 
+RADLATITUDE=47.65156879612473
+RADLONGITUDE=-117.18482279369067 
 
-# your location name
-RADLOCATIONNAME= "SwitchDoc Labs"
-# your location height in meters
+RADLOCATIONNAME= "SwitchDoc Labs, Spokane Valley, WA, USA"
 RADHEIGHTINMETERS = 615
 #radmon.org
 
 
 
 RADMONIPADDRESS="radmon.org"
-RADMONUSER="yourusername"
-RADMONPASSWORD="yourpassword"
+RADMONUSER="yourname"
+RADMONPASSWORD="yourpasswword"
 
 
-#safecast
+#safecase
 
-SAFECASTAPI="yoursafecastapiid"
+SAFECASTAPI=""
 
-#netc.com
 
 #GMCMap.com
 
 GMCMAPIPADDRESS="www.GMCMap.com"
-GMCMAPUSERACCOUNTID="youraccountid"
-GMCMAPGEIGERCOUNTERID="yourgeigercounterid"
+GMCMAPUSERACCOUNTID="youraccountID"
+GMCMAPGEIGERCOUNTERID="yourgiegercounterID"

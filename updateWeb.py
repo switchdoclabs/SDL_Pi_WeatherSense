@@ -3,7 +3,14 @@
 
 import traceback
 
-import updateWebConfig
+try:
+    import updateWebConfigLocal as updateWebConfig
+    print("updateWebConfigLocal Found")
+except:
+    import updateWebConfig
+    print ("using updateWebConfig")
+
+    
 import requests
 import config
 
