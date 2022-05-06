@@ -87,7 +87,7 @@ sudo pip3 install mysqlclient
 Next:
 
 <pre>
-sudo -u root -p < WeatherSenseWireless.sql
+sudo mysql -u root -p < WeatherSenseWireless.sql
 </pre>
 
 Now to run:
