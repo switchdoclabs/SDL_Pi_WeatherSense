@@ -14,7 +14,9 @@ import dash_bootstrap_components as dbc
 def Navbar():
     navbar = dbc.NavbarSimple(
         children=[
-            dbc.NavItem(dbc.NavLink("Weather", href="/weather_page")),
+            dbc.NavItem(dbc.NavLink("WR3Weather", href="/WR3_page")),
+            dbc.NavItem(dbc.NavLink("WR3Power", href="/WR3_Power_page")),
+            dbc.NavItem(dbc.NavLink("WR2Weather", href="/weather_page")),
             dbc.NavItem(dbc.NavLink("SkyCam", href="/skycam_page")),
             dbc.NavItem(dbc.NavLink("Indoor T/H", href="/indoorth_page")),
             dbc.NavItem(dbc.NavLink("AQI", href="/aqi_page")),

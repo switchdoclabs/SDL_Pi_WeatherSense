@@ -26,8 +26,8 @@ import aqi
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# cmd = [ '/usr/local/bin/rtl_433', '-q', '-F', 'json', '-R', '147']
-cmd = ['/usr/local/bin/rtl_433', '-q', '-F', 'json', '-R', '146', '-R', '147', '-R', '148', '-R', '150', '-R', '151', '-R', '152', '-R', '153']
+cmd = [ '/usr/local/bin/rtl_433', '-q', '-F', 'json', '-R', '154', '-R', '155']
+#cmd = ['/usr/local/bin/rtl_433', '-q', '-F', 'json', '-R', '146', '-R', '147', '-R', '148', '-R', '150', '-R', '151', '-R', '152', '-R', '153', '-R', '154', '-R', '155']
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -78,6 +78,246 @@ def mqtt_publish_single(message, topic):
 # process functions
 import gpiozero
 
+# WeatherRack3
+
+def twos_comp(val, bits):
+    """compute the 2's complement of int value val"""
+    if (val & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
+        val = val - (1 << bits)        # compute negative value
+    return val                         # return positive value as is
+
+
+def processWeatherRack3(sLine, lastWeatherRack3TimeStamp, ReadingCount):
+    if (config.SWDEBUG):
+        sys.stdout.write("processing WeatherRack3 Weather Data\n")
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
+        sys.stdout.write('ReadingCount=: ' + str(ReadingCount) + '\n')
+
+    var = json.loads(sLine)
+
+    if (config.enable_MQTT == True):
+        mqtt_publish_single(sLine, "WeatherRack3")
+
+    if (lastWeatherRack3TimeStamp == var["time"]):
+        # duplicate
+        if (config.SWDEBUG):
+            sys.stdout.write("duplicate found\n")
+
+        return ""
+    lastWeatherRack3TimeStamp = var["time"]
+
+
+    # outside temperature and Humidity
+
+    lastMainReading = nowStr()
+    MessageID = var["messageid"];
+    SerialNumber = var["deviceid"]
+    wTemp = var["temperature"]
+    #wTemp = twos_comp(var["temperature"], 16);
+
+    ucHumi = var["humidity"]
+
+    wTemp = wTemp / 10.0
+    # deal with error condtions
+    if (wTemp > 140.0):
+        # error condition from sensor
+        if (config.SWDEBUG):
+            sys.stdout.write("error--->>> Temperature reading from WeatherRack3\n")
+            sys.stdout.write('This is the raw temperature: ' + str(wTemp) + '\n')
+        # put in previous temperature 
+        wtemp = state.currentOutsideTemperature
+        # print("wTemp=%s %s", (str(wTemp),nowStr() ));
+    if (ucHumi > 1000.0):
+        # bad humidity
+        # put in previous humidity
+        ucHumi = state.currentOutsideHumidity
+
+    OutdoorTemperature = wTemp
+    #OutdoorTemperature = round(wTemp, 2)
+    OutdoorHumidity = round(ucHumi/10.0, 1)
+
+    WindSpeed = round(var["windspeed"] / 10.0, 1)
+    WindDirection = var["winddirectiondegrees"]
+    WindForce = var["windforce"]
+    Noise = round(var["noise"]/10.0, 1)
+    TotalRain = round(var["rain"] / 10.0, 1)
+    Rain60Minutes = 0.0
+
+    PM2_5 = var["PM2_5"]
+    PM10 = var["PM10"]
+    SunlightVisible = var["hwlux"] *256*256 + var["lwlux"] 
+    VisibleLightLux100 = var["lightvalue20W"]
+    myaqi = aqi.to_aqi([
+        (aqi.POLLUTANT_PM25, var['PM2_5']),
+        (aqi.POLLUTANT_PM10, var['PM10'])
+        ])
+    if (myaqi > 500):
+            myaqi = 500
+    #print("myaqi=", myaqi)
+    AQI = myaqi
+
+    if (config.enable_MySQL_Logging == True):
+        # open mysql database
+        # write log
+        # commit
+        # close
+        try:
+
+            con = mdb.connect(
+                config.MySQL_Host,
+                config.MySQL_User,
+                config.MySQL_Password,
+                config.MySQL_Schema
+            )
+            cur = con.cursor()
+
+            # calculate AQI 24 Hour
+            timeDelta = datetime.timedelta(days=1)
+            now = datetime.datetime.now()
+            before = now - timeDelta
+            before = before.strftime('%Y-%m-%d %H:%M:%S')
+            query = "SELECT AQI, TimeStamp FROM WeatherRack3 WHERE (TimeStamp > '%s') ORDER BY TimeStamp " % (before)
+
+            cur.execute(query)
+            myAQIRecords = cur.fetchall()
+            myAQITotal = 0.0
+            if (len(myAQIRecords) > 0):
+                for i in range(0, len(myAQIRecords)):
+                    myAQITotal = myAQITotal + myAQIRecords[i][0]
+                # adapt for current record
+                AQI24Hour = (myAQITotal + float(AQI)) / (len(myAQIRecords) + 1)
+            else:
+                AQI24Hour = 0.0
+        except mdb.Error as e:
+            traceback.print_exc()
+            print("Error %d: %s" % (e.args[0], e.args[1]))
+            con.rollback()
+            # sys.exit(1)
+
+        finally:
+            cur.close()
+            con.close()
+
+            del cur
+            del con
+
+    AQI24Average = AQI24Hour
+
+    BarometricPressure = var["pressure"] 
+    #calculates the pressure at sealevel when given a known altitude in meters
+    
+         
+    BarometricPressureSeaLevel = (BarometricPressure * 100000) / pow(1.0 - config.altitude_m / 44330.0, 5.255)
+    BarometricPressureSeaLevel = BarometricPressureSeaLevel / 100000
+    if (config.enable_MySQL_Logging == True):
+        # open mysql database
+        # write log
+        # commit
+        # close
+        try:
+            cpu = gpiozero.CPUTemperature()
+            CPUTemperature = cpu.temperature
+
+            con = mdb.connect(
+                config.MySQL_Host,
+                config.MySQL_User,
+                config.MySQL_Password,
+                config.MySQL_Schema
+            )
+
+            cur = con.cursor()
+
+            fields = "MessageID, SerialNumber, OutdoorTemperature, OutdoorHumidity, TotalRain, SunlightVisible, WindSpeed, WindForce, WindDirection, Noise, BarometricPressure, BarometricPressureSeaLevel, AQI, AQI24Average, PM2_5, PM10,  CPUTemperature,VisibleLightLux100"
+            values = "%d, %d, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d,%d,%6.2f, %d" % (
+            MessageID, SerialNumber, OutdoorTemperature, OutdoorHumidity, TotalRain, SunlightVisible, WindSpeed, WindForce, WindDirection, Noise, BarometricPressure, BarometricPressureSeaLevel, AQI, AQI24Average, PM2_5, PM10, CPUTemperature, VisibleLightLux100)
+            query = "INSERT INTO WeatherRack3 (%s) VALUES(%s )" % (fields, values)
+            # print("query=", query)
+            cur.execute(query)
+            con.commit()
+        except mdb.Error as e:
+            traceback.print_exc()
+            print("Error %d: %s" % (e.args[0], e.args[1]))
+            con.rollback()
+            # sys.exit(1)
+
+        finally:
+            cur.close()
+            con.close()
+
+            del cur
+            del con
+    return lastWeatherRack3TimeStamp
+
+
+def processWeatherRack3Power(sLine, lastWeatherRack3PowerTimeStamp, WeatherRack3PowerCount):
+    state = json.loads(sLine)
+    if (config.SWDEBUG):
+        sys.stdout.write("processing WeatherRack3 Power Data\n")
+        sys.stdout.write('This is the raw data: ' + sLine + '\n')
+
+    if (config.enable_MQTT == True):
+            mqtt_publish_single(sLine, "WR3Power")
+    
+    if (lastWeatherRack3PowerTimeStamp == state["time"]):
+        # duplicate
+        if (config.SWDEBUG):
+            sys.stdout.write("duplicate found\n")
+
+        return ""
+    lastWeatherRack3PowerTimeStamp = state["time"]
+
+    if (config.enable_MySQL_Logging == True):
+            # open mysql database
+            # write log
+            # commit
+            # close
+            try:
+                myTEST = ""
+                myTESTDescription = ""
+
+                con = mdb.connect(
+                    config.MySQL_Host,
+                    config.MySQL_User,
+                    config.MySQL_Password,
+                    config.MySQL_Schema
+                )
+
+                cur = con.cursor()
+                batteryPower =  float(state["batterychargecurrent"])* float(state["batteryvoltage"])
+                loadPower  =  float(state["loadcurrent"])* float(state["loadvoltage"])
+                solarPower =  float(state["solarpanelcurrent"])* float(state["solarpanelvoltage"])
+
+                fields = "MessageID, SerialNumber, BatteryCapacity, BatteryVoltage, BatteryCurrent, LoadVoltage, LoadCurrent, SolarPanelVoltage, SolarPanelCurrent, AuxA, BatteryPower, LoadPower, SolarPower, WakeCount, Min_Battery_Voltage_Today_Volts, Max_Charge_Current_Today_Amps, Max_Discharge_Current_Today_Amps, Charge_Amp_Hrs_Today_Amp_Hours, Discharge_Amp_Hrs_Today_Amp_Hours, Charge_Watt_Hrs_Today_Watt_Hours,Discharge_Watt_Hrs_Today_Watt_Hours, Controller_Uptime_Days, Total_Battery_Over_Charges_Count, Total_Battery_Full_Charges_Count "
+                values = "%d, %d, %d, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f,%6.2f,%6.2f,%d, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f, %6.2f" % (
+                state["messageid"], state["deviceid"],state["batterycapacity"],
+                state["batteryvoltage"], state["batterychargecurrent"], state["loadvoltage"], state["loadcurrent"],
+                state["solarpanelvoltage"], state["solarpanelcurrent"], state["auxa"],
+                batteryPower, loadPower, solarPower, state["wakecount"], state["Min_Battery_Voltage_Today_Volts"], state["Max_Charge_Current_Today_Amps"], state["Max_Discharge_Current_Today_Amps"], state["Charge_Amp_Hrs_Today_Amp_Hours"], state["Discharge_Amp_Hrs_Today_Amp_Hours"], state["Charge_Watt_Hrs_Today_Watt_Hours"], state["Discharge_Watt_Hrs_Today_Watt_Hours"], state["Controller_Uptime_Days"], state["Total_Battery_Over_Charges_Count"], state["Total_Battery_Full_Charges_Count"]
+                )
+                query = "INSERT INTO WeatherRack3Power (%s) VALUES(%s )" % (fields, values)
+                #print("query=", query)
+                cur.execute(query)
+                con.commit()
+            except mdb.Error as e:
+                traceback.print_exc()
+                print("Error %d: %s" % (e.args[0], e.args[1]))
+                con.rollback()
+                # sys.exit(1)
+
+            finally:
+                cur.close()
+                con.close()
+
+                del cur
+                del con
+
+    return lastWeatherRack3PowerTimeStamp
+
+
+
+
+
+# WeatherRack2
 
 def processFT020T(sLine, lastFT020TTimeStamp, ReadingCount):
     if (config.SWDEBUG):
@@ -570,7 +810,7 @@ def processWeatherSenseAQI(sLine):
                 ])
             if (myaqi > 500):
                 myaqi = 500
-            print("myaqi=", myaqi)
+            #print("myaqi=", myaqi)
             state['AQI'] = myaqi
 
             fields = "deviceid, protocolversion, softwareversion, weathersenseprotocol, PM1_0S, PM2_5S, PM10S, PM1_0A, PM2_5A, PM10A, AQI, AQI24Hour, batteryvoltage, batterycurrent, loadvoltage, loadcurrent, solarvoltage, solarcurrent, auxa, batterycharge, messageID, batterypower, loadpower, solarpower, test, testdescription"
@@ -683,6 +923,11 @@ def readSensors():
     pulse = 0
     print("starting 433MHz scanning")
     print("######")
+    # last timestamp for WeatherRack3 to remove duplicates
+    lastWeatherRack3TimeStamp = ""
+    WeatherRack3Count = 0
+    lastWeatherRack3PowerTimeStamp = ""
+    WeatherRack3PowerCount = 0
     # last timestamp for FT020T to remove duplicates
     lastFT020TTimeStamp = ""
     FT020Count = 0
@@ -730,6 +975,14 @@ def readSensors():
 
             if (sLine.find('Radiation') != -1):
                 processWeatherSenseRadiation(sLine)
+
+            if (sLine.find('WeatherRack3') != -1):
+                processWeatherRack3(sLine, lastWeatherRack3TimeStamp, WeatherRack3Count)
+                WeatherRack3Count = WeatherRack3Count + 1
+
+            if (sLine.find('WR3 Power') != -1):
+                processWeatherRack3Power(sLine, lastWeatherRack3PowerTimeStamp, WeatherRack3PowerCount)
+                WeatherRack3PowerCount = WeatherRack3PowerCount + 1
 
         sys.stdout.flush()
 

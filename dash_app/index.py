@@ -30,6 +30,8 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 # pages
 
 import solarmax_page
+import WR3_page
+import WR3_Power_page
 import weather_page
 import indoorth
 import aftershock_page
@@ -128,6 +130,12 @@ def display_page(pathname):
     #myLayout = NotImplPage()
     myLayout = aqi_page.AQIPage() 
     myLayout2 = ""
+    if pathname == '/WR3_page':
+        myLayout = WR3_page.WR3Page()
+        myLayout2 = ""
+    if pathname == '/WR3_Power_page':
+        myLayout = WR3_Power_page.WR3PowerPage()
+        myLayout2 = ""
     if pathname == '/weather_page':
         myLayout = weather_page.WeatherPage()
         myLayout2 = ""
@@ -545,4 +553,5 @@ def serve_static(resource):
 
 if __name__ == '__main__':
     # app.run_server(debug=True, host='0.0.0.0')
-    app.run_server(host='0.0.0.0')
+        print("dash_app running on port 8051")
+        app.run_server(host='0.0.0.0', port=8051)

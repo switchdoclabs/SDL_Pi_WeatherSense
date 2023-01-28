@@ -20,8 +20,8 @@ RADHEIGHTINMETERS = 615
 
 
 RADMONIPADDRESS="radmon.org"
-RADMONUSER=""
-RADMONPASSWORD="yourpasswword"
+RADMONUSER="switchdoclabs"
+RADMONPASSWORD="picadillo304"
 
 
 #safecase

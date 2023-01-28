@@ -8,6 +8,11 @@ from builtins import hex
 SWDEBUG = True
 
 SWVERSION = "000"  # set in WeatherSenseMontor.py
+
+# altitude of WeatherRack3 station in meters
+altitude_m = 620
+
+
 import uuid
 
 #configure SkyCam Remote camera

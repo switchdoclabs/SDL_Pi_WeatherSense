@@ -11,6 +11,7 @@ Program monitors the SwitchDoc Labs SDR on Pi for all WeatherSense instruments a
 And publishes to MQTT topic "weathersense/#"
 
 
+Version V017 December 10,2022 - WeatherRack3 Added<BR>
 Version V016 April 30,2022 - local updateWeb Logic Added<BR>
 Version V015 April 16,2022 - WR2 Light update and database<BR>
 Version V014 April 11,2022 - Added fixSkyCamRemote.py for setting MQTT addresses<BR>
