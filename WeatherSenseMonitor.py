@@ -2,7 +2,7 @@ from __future__ import print_function
 # import state
 import sys
 # from datetime import datetime
-SOFTWAREVERSION = "V017"
+SOFTWAREVERSION = "V018"
 import wirelessSensors
 import MySQLdb as mdb
 

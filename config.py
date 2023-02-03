@@ -1,5 +1,6 @@
 #
 #
+#
 # configuration file - contains customization for WeatherSense 
 #
 
