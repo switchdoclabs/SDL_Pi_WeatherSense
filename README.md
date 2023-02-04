@@ -27,6 +27,7 @@ sudo pip3 install ffmpeg<BR>
 if you are updating from an older database version do the following:
 <pre>
 sudo mysql -u root -p WeatherSenseWireless < updateWeatherSenseWireless.sql
+sudo mysql -u root -p WeatherSenseWireless < update018WeatherSenseWireless.sql
 </pre>
 
 Version V012 August 23,2021 - Check for Database existance<BR>
